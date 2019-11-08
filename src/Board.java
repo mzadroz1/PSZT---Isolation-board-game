@@ -12,8 +12,8 @@ public class Board {
 
     public void initBoard() {
         gameState = 1;
-        player = new Player(6,3);
-        opponent = new Player(0,3);
+        player = new Player(6,3, 1);
+        opponent = new Player(0,3, 2);
         tiles = new Tile[7][7];
         for(int i = 0; i < 7; i++) {
             for(int j = 0; j< 7; j++) {
