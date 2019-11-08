@@ -14,7 +14,7 @@ public class SwingView extends JPanel implements View {
     private Controller controller;
 
     public SwingView() {
-        setSize(915, 935);
+        //setSize(720, 730);
         addMouseListener(createMouseListener());
         setFocusable(true);
     }

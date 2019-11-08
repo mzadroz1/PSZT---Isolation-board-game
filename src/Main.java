@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 
 public class Main {
 
@@ -21,15 +22,22 @@ public class Main {
     }
 
     private static void createAndShowGUI() {
-        JFrame frame = new JFrame("HelloWorldSwing");
+        JFrame frame = new JFrame("HelloWorldSwing") {
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(717, 739);
+            }
+        };
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+
+        frame.setSize(frame.getPreferredSize());
+        frame.setResizable(false);
+        //frame.setSize(v.getSize());
+        frame.setVisible(true);
         SwingView v = createModelViewController();
         frame.getContentPane().add(v);
-
-        frame.setSize(v.getSize());
-        frame.setVisible(true);
-
+        frame.pack();
         v.requestFocus();
     }
 
