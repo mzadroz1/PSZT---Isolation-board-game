@@ -1,15 +1,16 @@
-import java.util.ArrayList;
 
 public class Board {
 
     private Tile[][] tiles;
     private Player player;
+    private int gameState;
 
     public Board() {
         initBoard();
     }
 
     public void initBoard() {
+        gameState = 1;
         player = new Player();
         tiles = new Tile[7][7];
         for(int i = 0; i < 7; i++) {
@@ -34,5 +35,11 @@ public class Board {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public int getGameState() {return gameState;}
+
+    public void setGameState(int gameState) {
+        this.gameState = gameState;
     }
 }

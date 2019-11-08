@@ -5,7 +5,7 @@ public class Player extends GameObject {
     private int i, j;
 
     public Player() {
-        i = 6;
+        i = 3;
         j = 3;
         loadImage();
         getImageDimensions();
