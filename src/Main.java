@@ -22,7 +22,7 @@ public class Main {
     }
 
     private static void createAndShowGUI() {
-        JFrame frame = new JFrame("HelloWorldSwing") {
+        JFrame frame = new JFrame("Issolation Game") {
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(717, 739);
