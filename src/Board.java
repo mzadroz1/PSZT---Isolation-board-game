@@ -21,12 +21,16 @@ public class Board {
                 tiles[i][j].setX(j*tiles[i][j].getImageHeight());
             }
         }
+        calculatePlayerCoordinates();
+        tiles[player.getRow()][player.getColumn()].setType(4);
+    }
+
+    public void calculatePlayerCoordinates() {
         Tile tile = tiles[player.getRow()][player.getColumn()];
         int playerX = tile.getX() + (tile.getImageWidth()-player.getImageWidth())/2;
         int playerY = tile.getY() + (tile.getImageHeight()-player.getImageHeight())/2;
         player.setX(playerX);
         player.setY(playerY);
-        tile.setType(4);
     }
 
     public Tile[][] getTiles() {

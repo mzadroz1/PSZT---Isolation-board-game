@@ -26,7 +26,7 @@ public class Tile extends GameObject {
     }
 
     private void loadImage() {
-        if (type == 1) {
+        if (type == 1 || type == 4) {
             ImageIcon img = new ImageIcon("images/normal.png");
             setImage(img.getImage());
         }
