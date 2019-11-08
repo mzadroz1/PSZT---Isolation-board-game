@@ -4,9 +4,9 @@ public class Player extends GameObject {
 
     private int i, j;
 
-    public Player() {
-        i = 3;
-        j = 3;
+    public Player(int i, int j) {
+        this.i = i;
+        this.j = j;
         loadImage();
         getImageDimensions();
     }

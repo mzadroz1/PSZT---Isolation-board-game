@@ -3,6 +3,7 @@ public class Board {
 
     private Tile[][] tiles;
     private Player player;
+    private Player opponent;
     private int gameState;
 
     public Board() {
@@ -11,7 +12,8 @@ public class Board {
 
     public void initBoard() {
         gameState = 1;
-        player = new Player();
+        player = new Player(6,3);
+        opponent = new Player(0,3);
         tiles = new Tile[7][7];
         for(int i = 0; i < 7; i++) {
             for(int j = 0; j< 7; j++) {
@@ -21,11 +23,13 @@ public class Board {
                 tiles[i][j].setX(j*tiles[i][j].getImageHeight());
             }
         }
-        calculatePlayerCoordinates();
+        calculatePlayerCoordinates(player);
+        calculatePlayerCoordinates(opponent);
         tiles[player.getRow()][player.getColumn()].setType(4);
+        tiles[opponent.getRow()][opponent.getColumn()].setType(4);
     }
 
-    public void calculatePlayerCoordinates() {
+    public void calculatePlayerCoordinates(Player player) {
         Tile tile = tiles[player.getRow()][player.getColumn()];
         int playerX = tile.getX() + (tile.getImageWidth()-player.getImageWidth())/2;
         int playerY = tile.getY() + (tile.getImageHeight()-player.getImageHeight())/2;
@@ -40,6 +44,8 @@ public class Board {
     public Player getPlayer() {
         return player;
     }
+
+    public Player getOpponent() {return opponent;}
 
     public int getGameState() {return gameState;}
 

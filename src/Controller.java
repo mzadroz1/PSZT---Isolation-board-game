@@ -4,11 +4,13 @@ import java.util.TimerTask;
 public class Controller {
 
     private Board board;
+    private Player player;
     private Timer timer;
     private View view;
 
     public Controller(Board board) {
         this.board = board;
+        player = board.getPlayer();
         timer = new Timer();
         final int INITIAL_DELAY = 50;
         final int PERIOD_INTERVAL = 6;
@@ -31,7 +33,6 @@ public class Controller {
     }
 
     private void showAvailableMoves(int x, int y) {
-        Player player = board.getPlayer();
         Tile[][] tiles = board.getTiles();
         if(tiles[player.getRow()][player.getColumn()].isPointInsideTile(x,y)) {
             for(int i = player.getRow() - 1; i <= player.getRow() + 1; i++) {
@@ -47,7 +48,6 @@ public class Controller {
     }
 
     private void movePlayer(int x, int y) {
-        Player player = board.getPlayer();
         Tile[][] tiles = board.getTiles();
         int playerRow = player.getRow();
         int playerColumn = player.getColumn();
@@ -60,7 +60,7 @@ public class Controller {
                             tiles[playerRow][playerColumn].setType(1);
                             player.setRow(i);
                             player.setColumn(j);
-                            board.calculatePlayerCoordinates();
+                            board.calculatePlayerCoordinates(player);
                             tiles[i][j].setType(4);
                             board.setGameState(3);
                             moved = true;
@@ -83,6 +83,10 @@ public class Controller {
                     if(tiles[i][j].isNormal()) {
                         tiles[i][j].setType(3);
                         board.setGameState(1);
+                        if(player == board.getPlayer())
+                            player = board.getOpponent();
+                        else
+                            player = board.getPlayer();
                     }
                 }
             }
