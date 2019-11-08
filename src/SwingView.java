@@ -56,6 +56,7 @@ public class SwingView extends JPanel implements View {
         Graphics2D g = (Graphics2D) g1;
         fillBackground(g);
         paintTiles(g);
+        paintPlayer(g);
     }
 
     private void paintTiles(Graphics2D g) {
@@ -66,6 +67,12 @@ public class SwingView extends JPanel implements View {
                 g.drawImage(tile.getImage(),tile.getX(),tile.getY(),tile.getImageWidth(),tile.getImageHeight(),this);
             }
         }
+    }
+
+    private void paintPlayer(Graphics2D g) {
+        Player player = board.getPlayer();
+        Tile[][] tiles = board.getTiles();
+        g.drawImage(player.getImage(),player.getX(),player.getY(),player.getImageWidth(),player.getImageHeight(),this);
     }
 
     private void fillBackground(Graphics2D g) {

@@ -53,6 +53,8 @@ public class Tile extends GameObject {
         return type == 1;
     }
 
+    public boolean isPlayerOnTile() {return type == 4;}
+
     public void setType(int type) {
         this.type = type;
         loadImage();
