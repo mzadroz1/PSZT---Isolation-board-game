@@ -91,6 +91,14 @@ public class Controller {
                 }
             }
         }
+        if(board.isLooser(board.getPlayer())) {
+            System.out.println("You Loose. GAME OVER");
+            System.exit(0);
+        }
+        if(board.isLooser(board.getOpponent())) {
+            System.out.println("You Loose. GAME OVER");
+            System.exit(0);
+        }
     }
 
 

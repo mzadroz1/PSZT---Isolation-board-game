@@ -22,7 +22,7 @@ public class Main {
     }
 
     private static void createAndShowGUI() {
-        JFrame frame = new JFrame("Issolation Game") {
+        JFrame frame = new JFrame("Isolation Game") {
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(717, 739);

@@ -37,6 +37,19 @@ public class Board {
         player.setY(playerY);
     }
 
+    public boolean isLooser(Player player) {
+
+        for(int x =player.getColumn()-1; x<=player.getColumn()+1;++x)
+            for(int y =player.getRow()-1;y<=player.getRow()+1;++y) {
+                if((x==player.getColumn() && y==player.getRow()) || x<0 || x>6 || y<0 || y>6)
+                    continue;
+                if(this.tiles[y][x].isNormal())
+                    return false;
+            }
+
+        return true;
+    }
+
     public Tile[][] getTiles() {
         return tiles;
     }
