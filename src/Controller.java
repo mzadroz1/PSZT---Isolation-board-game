@@ -7,9 +7,11 @@ public class Controller {
     private Player player;
     private Timer timer;
     private View view;
+    private int endGameState; //0 -gra w trakcie, -1 - gracz przegrał 1 - gracz wygrał
 
     public Controller(Board board) {
         this.board = board;
+        endGameState = 0;
         player = board.getPlayer();
         timer = new Timer();
         final int INITIAL_DELAY = 50;
@@ -93,11 +95,13 @@ public class Controller {
         }
         if(board.isLooser(board.getPlayer())) {
             System.out.println("You Loose. GAME OVER");
-            System.exit(0);
+            endGameState = -1;
+//            System.exit(0);
         }
         if(board.isLooser(board.getOpponent())) {
-            System.out.println("You Loose. GAME OVER");
-            System.exit(0);
+            System.out.println("You Win. GAME OVER");
+            endGameState = 1;
+//            System.exit(0);
         }
     }
 
@@ -110,5 +114,10 @@ public class Controller {
             view.updateView();
         }
     }
+
+    public int getEndGameState() {
+        return endGameState;
+    }
+
 
 }

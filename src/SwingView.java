@@ -1,11 +1,9 @@
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
 public class SwingView extends JPanel implements View {
     private static final long serialVersionUID = -7729510720848698723L;
@@ -25,6 +23,8 @@ public class SwingView extends JPanel implements View {
             public void mouseClicked(MouseEvent e) {
                 int x = e.getX();
                 int y = e.getY();
+                if(controller.getEndGameState()!=0)
+                    System.exit(0);
                 if(e.getButton() == MouseEvent.BUTTON1)
                     controller.tileClicked(x,y);
             }
@@ -58,6 +58,18 @@ public class SwingView extends JPanel implements View {
         paintTiles(g);
         paintPlayer(g);
         paintOpponent(g);
+        if(controller.getEndGameState()!=0) {
+            paintNotify(g);
+        }
+    }
+
+    private void paintNotify(Graphics2D g) {
+        Image win = new ImageIcon("images/win.png").getImage();
+        Image loose = new ImageIcon("images/lose.png").getImage();
+        if(controller.getEndGameState()==1)
+            g.drawImage(win,0,0, null);
+        else
+            g.drawImage(loose,0,0,null);
     }
 
     private void paintTiles(Graphics2D g) {
