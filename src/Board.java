@@ -57,9 +57,13 @@ public class Board {
             return Double.POSITIVE_INFINITY;
         if(this.isLooser(player))
             return Double.NEGATIVE_INFINITY;
+        double evaluation = 0.0;
+        evaluation -= 3.0*teritory(opponent);
+        evaluation += 3.0*teritory(player);
+        evaluation -= 0.25*possibleMoves(opponent);
+        evaluation += 0.25*possibleMoves(player);
 
-        return teritory(opponent);
-
+        return evaluation;
     }
 
     //zliczamy na ile pol moze sie jeszcze przemiescic gracz AI
@@ -90,6 +94,24 @@ public class Board {
             }
         }
         return field.size();
+    }
+
+    private int possibleMoves(Player p) {
+        int pMoves =0, x, y;
+        x = p.getColumn();
+        if((y =p.getRow()) > 0) {
+            if(tiles[y-1][x].isNormal()) ++pMoves;
+            if(x>0 && tiles[y-1][x-1].isNormal()) ++pMoves;
+            if(x<6 && tiles[y-1][x+1].isNormal()) ++pMoves;
+        }
+        if(x>0 && tiles[y][x-1].isNormal()) ++pMoves;
+        if(x<6 && tiles[y][x+1].isNormal()) ++pMoves;
+        if((y =p.getRow()) < 6) {
+            if(tiles[y+1][x].isNormal()) ++pMoves;
+            if(x>0 && tiles[y+1][x-1].isNormal()) ++pMoves;
+            if(x<6 && tiles[y+1][x+1].isNormal()) ++pMoves;
+        }
+        return pMoves;
     }
 
     public Tile[][] getTiles() {
