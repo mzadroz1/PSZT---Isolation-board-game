@@ -1,18 +1,18 @@
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Controller {
 
     private Board board;
-    private Player player;
     private Timer timer;
     private View view;
     private int endGameState; //0 -gra w trakcie, -1 - gracz przegrał 1 - gracz wygrał
 
     public Controller(Board board) {
         this.board = board;
+        //this.board = new Board(board);
         endGameState = 0;
-        player = board.getPlayer();
         timer = new Timer();
         final int INITIAL_DELAY = 50;
         final int PERIOD_INTERVAL = 6;
@@ -26,15 +26,67 @@ public class Controller {
 
     public void tileClicked(int x, int y) {
         int gameState = board.getGameState();
-        if(gameState == 1)
-            showAvailableMoves(x,y);
-        if(gameState == 2)
-            movePlayer(x,y);
-        if(gameState == 3)
-            destroyTile(x,y);
+        if(board.isPlayerTurn()) {
+            if(gameState == 1)
+                showAvailableMoves(x,y);
+            if(gameState == 2)
+                movePlayer(x,y);
+            if(gameState == 3)
+                destroyTile(x,y);
+        }
+    }
+
+    private void AiTurn() {
+        /*AiTestMove();
+        AiTestDestroy();*/
+        ArrayList<Board> posMoves = board.generatePossibleBoards();
+        double min = Double.POSITIVE_INFINITY;
+        Board temp = new Board();
+        for(int i = 0; i < posMoves.size(); i++) {
+            double gameStateEval = posMoves.get(i).evalGameState();
+            if(gameStateEval < min) {
+                min = gameStateEval;
+                temp = posMoves.get(i);
+            }
+        }
+        //board.movePlayer(board.getOpponent(),temp.getOpponent().getRow(),temp.getOpponent().getColumn());
+        board = temp;
+        //board.calculatePlayerCoordinates(board.getOpponent());
+        view.setModel(board);
+        board.setGameState(1);
+        board.setPlayerTurn(true);
+    }
+
+    private void AiTestMove() {
+        Player opp = board.getOpponent();
+        Tile[][] tiles = board.getTiles();
+        for(int i = opp.getRow() - 1; i <= opp.getRow() + 1; i++) {
+            for(int j = opp.getColumn() - 1; j <= opp.getColumn() + 1; j++) {
+                if(i >= 0 && i <= 6 && j >= 0 && j <= 6) {
+                    if(tiles[i][j].isNormal()) {
+                        board.movePlayer(opp,i,j);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void AiTestDestroy() {
+        Tile[][] tiles = board.getTiles();
+        for(int i = 0; i < 7; i++) {
+            for(int j = 0; j < 7; j++) {
+                if(tiles[i][j].isNormal()) {
+                    tiles[i][j].setType(3);
+                    board.setPlayerTurn(true);
+                    return;
+                }
+            }
+        }
     }
 
     private void showAvailableMoves(int x, int y) {
+        Player player = board.getPlayer();
         Tile[][] tiles = board.getTiles();
         if(tiles[player.getRow()][player.getColumn()].isPointInsideTile(x,y)) {
             for(int i = player.getRow() - 1; i <= player.getRow() + 1; i++) {
@@ -51,6 +103,7 @@ public class Controller {
 
     private void movePlayer(int x, int y) {
         Tile[][] tiles = board.getTiles();
+        Player player = board.getPlayer();
         int playerRow = player.getRow();
         int playerColumn = player.getColumn();
         boolean moved = false;
@@ -59,11 +112,7 @@ public class Controller {
                 if (i >= 0 && i <= 6 && j >= 0 && j <= 6) {
                     if(tiles[i][j].isActive()) {
                         if (tiles[i][j].isPointInsideTile(x, y)) {
-                            tiles[playerRow][playerColumn].setType(1);
-                            player.setRow(i);
-                            player.setColumn(j);
-                            board.calculatePlayerCoordinates(player);
-                            tiles[i][j].setType(4);
+                            board.movePlayer(player,i,j);
                             board.setGameState(3);
                             moved = true;
                         }
@@ -83,12 +132,13 @@ public class Controller {
             for (int j = 0; j < 7; j++) {
                 if(tiles[i][j].isPointInsideTile(x,y)) {
                     if(tiles[i][j].isNormal()) {
-                        tiles[i][j].setType(3);
-                        board.setGameState(1);
-                        if(player == board.getPlayer())
+                        board.destroyTile(i,j);
+
+                        /*if(player == board.getPlayer())
                             player = board.getOpponent();
                         else
-                            player = board.getPlayer();
+                            player = board.getPlayer();*/
+                        board.setPlayerTurn(false);
                     }
                 }
             }
@@ -113,8 +163,10 @@ public class Controller {
 
         @Override
         public void run() {
-
+            if(!board.isPlayerTurn())
+                AiTurn();
             view.updateView();
+
         }
     }
 

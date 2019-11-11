@@ -5,10 +5,30 @@ public class Board {
     private Tile[][] tiles;
     private Player player;
     private Player opponent;
+    private boolean playerTurn; //false if it's AI turn, true if it's human player turn
     private int gameState;
 
     public Board() {
         initBoard();
+    }
+
+    public Board(Board other) {
+        tiles = new Tile[7][7];
+        for(int i = 0; i < 7; i++) {
+            for(int j = 0; j< 7; j++) {
+                tiles[i][j] = new Tile();
+                tiles[i][j].setType(other.getTiles()[i][j].getType());
+                tiles[i][j].positionOnBoard(i,j);
+                tiles[i][j].setY(i*tiles[i][j].getImageWidth());
+                tiles[i][j].setX(j*tiles[i][j].getImageHeight());
+            }
+        }
+        player = new Player(other.getPlayer().getRow(),other.getPlayer().getColumn(),1);
+        opponent = new Player(other.getOpponent().getRow(),other.getOpponent().getColumn(),2);
+        this.calculatePlayerCoordinates(player);
+        this.calculatePlayerCoordinates(opponent);
+        playerTurn = other.playerTurn;
+        gameState = other.gameState;
     }
 
     public void initBoard() {
@@ -16,6 +36,7 @@ public class Board {
         player = new Player(6,3, 1);
         opponent = new Player(0,3, 2);
         tiles = new Tile[7][7];
+        playerTurn = true;
         for(int i = 0; i < 7; i++) {
             for(int j = 0; j< 7; j++) {
                 tiles[i][j] = new Tile();
@@ -65,6 +86,49 @@ public class Board {
 
         return evaluation;
     }
+
+    public ArrayList<Board> generatePossibleBoards() {
+        ArrayList<Board> result = new ArrayList<>();
+        Player currPlayer = getOpponent();
+
+
+        int x = currPlayer.getRow(), y = currPlayer.getColumn();
+        for(int i = x - 1; i <= x + 1; i++) {
+            for(int j = y - 1; j <= y + 1; j++) {
+                if (i >= 0 && i <= 6 && j >= 0 && j <= 6) {
+                    if (tiles[i][j].isNormal()) {
+                        for (int k = 0; k < 7; k++) {
+                            for (int l = 0; l < 7; l++) {
+                                if (tiles[k][l].isNormal()) {
+                                    Board child = new Board(this);
+
+                                    child.movePlayer(child.getOpponent(), i, j);
+                                    //child.getTiles()[x][y].setType(1);
+                                    child.destroyTile(k, l);
+                                    result.add(child);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public void movePlayer(Player player, int row, int col) {
+        tiles[player.getRow()][player.getColumn()].setType(1);
+        player.setRow(row);
+        player.setColumn(col);
+        calculatePlayerCoordinates(player);
+        tiles[row][col].setType(4);
+    }
+
+    public void destroyTile(int row, int col) {
+        tiles[row][col].setType(3);
+    }
+
 
     //zliczamy na ile pol moze sie jeszcze przemiescic gracz AI
     private int teritory(Player p) {
@@ -123,6 +187,14 @@ public class Board {
     }
 
     public Player getOpponent() {return opponent;}
+
+    public boolean isPlayerTurn() {
+        return playerTurn;
+    }
+
+    public void setPlayerTurn(boolean playerTurn) {
+        this.playerTurn = playerTurn;
+    }
 
     public int getGameState() {return gameState;}
 

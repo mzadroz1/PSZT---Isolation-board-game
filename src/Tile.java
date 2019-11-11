@@ -36,7 +36,7 @@ public class Tile extends GameObject {
             ImageIcon img = new ImageIcon("images/normal.png");
             setImage(img.getImage());
         }
-        if (type == 2) {
+        if (type == 2 ) {
             ImageIcon img = new ImageIcon("images/active.png");
             setImage(img.getImage());
         }
@@ -60,6 +60,8 @@ public class Tile extends GameObject {
     }
 
     public boolean isPlayerOnTile() {return type == 4;}
+
+    public int getType() {return type;}
 
     public void setType(int type) {
         this.type = type;
