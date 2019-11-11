@@ -1,3 +1,4 @@
+import java.util.*;
 
 public class Board {
 
@@ -19,6 +20,7 @@ public class Board {
             for(int j = 0; j< 7; j++) {
                 tiles[i][j] = new Tile();
                 tiles[i][j].setType(1);
+                tiles[i][j].positionOnBoard(i,j);
                 tiles[i][j].setY(i*tiles[i][j].getImageWidth());
                 tiles[i][j].setX(j*tiles[i][j].getImageHeight());
             }
@@ -48,6 +50,55 @@ public class Board {
             }
 
         return true;
+    }
+
+    public double evalGameState() { // opponent - MIN, player - MAX
+        if(this.isLooser(opponent))
+            return Double.POSITIVE_INFINITY;
+        if(this.isLooser(player))
+            return Double.NEGATIVE_INFINITY;
+
+        return teritory(opponent);
+
+    }
+
+    //zliczamy na ile pol moze sie jeszcze przemiescic gracz AI
+    private int teritory(Player p) {
+        int x = p.getColumn(), y = p.getRow();
+        int size = 0;
+
+//        if(y>0 && tiles[y-1][x].isNormal()) ++size;
+//        if(y<6 && tiles[y+1][x].isNormal()) ++size;
+//
+//        for(int i= 0;i<7;++i)
+//            for (int j= 1;j<7;++j) {
+//                if(tiles)
+//            }
+
+//        Vector<Tile> tmp = new Vector<>();
+        ArrayDeque<Tile> tmp = new ArrayDeque<>();
+        HashSet<Tile> field = new HashSet<>();
+        tmp.add(tiles[y][x]);
+        while(tmp.size()>0) {
+            Tile t = tmp.pollLast();
+            if(t.isNormal()) {
+                System.out.print("| ");
+                field.add(t);
+                if(y>0) {
+                    tmp.add(tiles[y-1][x]);
+                    if(x>0) tmp.add(tiles[y-1][x-1]);
+                    if(x<6) tmp.add(tiles[y-1][x+1]);
+                }
+                if(x>0) tmp.add(tiles[y][x-1]);
+                if(x<6) tmp.add(tiles[y][x+1]);
+                if(y<6) {
+                    tmp.add(tiles[y+1][x]);
+                    if(x>0) tmp.add(tiles[y+1][x-1]);
+                    if(x<6) tmp.add(tiles[y+1][x+1]);
+                }
+            }
+        }
+        return field.size();
     }
 
     public Tile[][] getTiles() {

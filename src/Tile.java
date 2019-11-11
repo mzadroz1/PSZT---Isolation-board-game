@@ -3,6 +3,7 @@ import javax.swing.*;
 public class Tile extends GameObject {
 
     private int type;
+    private int col, row;
 
     public Tile() {
         this.type = 1;
@@ -13,6 +14,11 @@ public class Tile extends GameObject {
     public Tile(int x, int y, int type) {
 
         initBrick(x, y, type);
+    }
+
+    public void positionOnBoard(int row, int col) {
+        this.row = row;
+        this.col = col;
     }
 
     private void initBrick(int x, int y, int type) {
@@ -68,4 +74,13 @@ public class Tile extends GameObject {
         else
             return true;
     }
+
+    public int getCol() {
+        return col;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
 }

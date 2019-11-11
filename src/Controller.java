@@ -105,6 +105,9 @@ public class Controller {
         }
     }
 
+    public void showEval() {
+        System.out.println("Stan gry: " + board.evalGameState());
+    }
 
     private class ScheduleTask extends TimerTask {
 

@@ -27,6 +27,8 @@ public class SwingView extends JPanel implements View {
                     System.exit(0);
                 if(e.getButton() == MouseEvent.BUTTON1)
                     controller.tileClicked(x,y);
+                if(e.getButton() == MouseEvent.BUTTON3)
+                    controller.showEval();
             }
 
             @Override
