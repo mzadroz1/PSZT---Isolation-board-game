@@ -65,36 +65,27 @@ public class Board {
     //zliczamy na ile pol moze sie jeszcze przemiescic gracz AI
     private int teritory(Player p) {
         int x = p.getColumn(), y = p.getRow();
-        int size = 0;
-
-//        if(y>0 && tiles[y-1][x].isNormal()) ++size;
-//        if(y<6 && tiles[y+1][x].isNormal()) ++size;
-//
-//        for(int i= 0;i<7;++i)
-//            for (int j= 1;j<7;++j) {
-//                if(tiles)
-//            }
-
-//        Vector<Tile> tmp = new Vector<>();
         ArrayDeque<Tile> tmp = new ArrayDeque<>();
         HashSet<Tile> field = new HashSet<>();
         tmp.add(tiles[y][x]);
+
         while(tmp.size()>0) {
             Tile t = tmp.pollLast();
-            if(t.isNormal()) {
-                System.out.print("| ");
-                field.add(t);
+            y = t.getRow();
+            x = t.getCol();
+            if(t.isNormal()|| y==p.getRow()&&x==p.getColumn()) {
+                if(t.isNormal()) field.add(t);
                 if(y>0) {
-                    tmp.add(tiles[y-1][x]);
-                    if(x>0) tmp.add(tiles[y-1][x-1]);
-                    if(x<6) tmp.add(tiles[y-1][x+1]);
+                    if(!field.contains(tiles[y-1][x])) tmp.add(tiles[y-1][x]);
+                    if(x>0 && !field.contains(tiles[y-1][x-1])) tmp.add(tiles[y-1][x-1]);
+                    if(x<6 && !field.contains(tiles[y-1][x+1])) tmp.add(tiles[y-1][x+1]);
                 }
-                if(x>0) tmp.add(tiles[y][x-1]);
-                if(x<6) tmp.add(tiles[y][x+1]);
+                if(x>0 && !field.contains(tiles[y][x-1])) tmp.add(tiles[y][x-1]);
+                if(x<6 && !field.contains(tiles[y][x+1])) tmp.add(tiles[y][x+1]);
                 if(y<6) {
-                    tmp.add(tiles[y+1][x]);
-                    if(x>0) tmp.add(tiles[y+1][x-1]);
-                    if(x<6) tmp.add(tiles[y+1][x+1]);
+                    if(!field.contains(tiles[y+1][x])) tmp.add(tiles[y+1][x]);
+                    if(x>0 && !field.contains(tiles[y+1][x-1])) tmp.add(tiles[y+1][x-1]);
+                    if(x<6 && !field.contains(tiles[y+1][x+1])) tmp.add(tiles[y+1][x+1]);
                 }
             }
         }
