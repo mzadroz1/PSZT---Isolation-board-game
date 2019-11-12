@@ -166,16 +166,16 @@ public class Board {
         int pMoves =0, x, y;
         x = p.getColumn();
         if((y =p.getRow()) > 0) {
-            if(!tiles[y-1][x].isDestroyed()) ++pMoves;
-            if(x>0 && !tiles[y-1][x-1].isDestroyed()) ++pMoves;
-            if(x<6 && !tiles[y-1][x+1].isDestroyed()) ++pMoves;
+            if(tiles[y-1][x].isNormal()) ++pMoves;
+            if(x>0 && tiles[y-1][x-1].isNormal()) ++pMoves;
+            if(x<6 && tiles[y-1][x+1].isNormal()) ++pMoves;
         }
-        if(x>0 && !tiles[y][x-1].isDestroyed()) ++pMoves;
-        if(x<6 && !tiles[y][x+1].isDestroyed()) ++pMoves;
+        if(x>0 && tiles[y][x-1].isNormal()) ++pMoves;
+        if(x<6 && tiles[y][x+1].isNormal()) ++pMoves;
         if((y =p.getRow()) < 6) {
-            if(!tiles[y+1][x].isDestroyed()) ++pMoves;
-            if(x>0 && !tiles[y+1][x-1].isDestroyed()) ++pMoves;
-            if(x<6 && !tiles[y+1][x+1].isDestroyed()) ++pMoves;
+            if(tiles[y+1][x].isNormal()) ++pMoves;
+            if(x>0 && tiles[y+1][x-1].isNormal()) ++pMoves;
+            if(x<6 && tiles[y+1][x+1].isNormal()) ++pMoves;
         }
         return pMoves;
     }
