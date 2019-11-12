@@ -28,7 +28,7 @@ public class Board {
         opponent = new Player(other.getOpponent().getRow(),other.getOpponent().getColumn(),2);
         this.calculatePlayerCoordinates(player);
         this.calculatePlayerCoordinates(opponent);
-        playerTurn = !other.playerTurn;
+        playerTurn = other.playerTurn;
         gameState = other.gameState;
     }
 
@@ -196,6 +196,10 @@ public class Board {
 
     public void setPlayerTurn(boolean playerTurn) {
         this.playerTurn = playerTurn;
+    }
+
+    public boolean getPlayerTurn() {
+        return playerTurn;
     }
 
     public int getGameState() {return gameState;}
