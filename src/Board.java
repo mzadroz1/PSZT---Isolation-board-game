@@ -13,9 +13,10 @@ public class Board {
     }
 
     public Board(Board other) {
-        tiles = new Tile[7][7];
+        this.tiles = new Tile[7][7];
         for(int i = 0; i < 7; i++) {
             for(int j = 0; j< 7; j++) {
+//                this.tiles[i][j] = new Tile(other.getTiles()[i][j]);
                 tiles[i][j] = new Tile();
                 tiles[i][j].setType(other.getTiles()[i][j].getType());
                 tiles[i][j].positionOnBoard(i,j);
@@ -62,15 +63,16 @@ public class Board {
 
     public boolean isLooser(Player player) {
 
-        for(int x =player.getColumn()-1; x<=player.getColumn()+1;++x)
-            for(int y =player.getRow()-1;y<=player.getRow()+1;++y) {
-                if((x==player.getColumn() && y==player.getRow()) || x<0 || x>6 || y<0 || y>6)
-                    continue;
-                if(this.tiles[y][x].isNormal())
-                    return false;
-            }
-
-        return true;
+//        for(int x =player.getColumn()-1; x<=player.getColumn()+1;++x)
+//            for(int y =player.getRow()-1;y<=player.getRow()+1;++y) {
+//                if((x==player.getColumn() && y==player.getRow()) || x<0 || x>6 || y<0 || y>6)
+//                    continue;
+//                if(this.tiles[y][x].isNormal())
+//                    return false;
+//            }
+//
+//        return true;
+        return this.possibleMoves(player)==0;
     }
 
     public double evalGameState() { // opponent - MIN, player - MAX
@@ -164,16 +166,16 @@ public class Board {
         int pMoves =0, x, y;
         x = p.getColumn();
         if((y =p.getRow()) > 0) {
-            if(tiles[y-1][x].isNormal()) ++pMoves;
-            if(x>0 && tiles[y-1][x-1].isNormal()) ++pMoves;
-            if(x<6 && tiles[y-1][x+1].isNormal()) ++pMoves;
+            if(!tiles[y-1][x].isDestroyed()) ++pMoves;
+            if(x>0 && !tiles[y-1][x-1].isDestroyed()) ++pMoves;
+            if(x<6 && !tiles[y-1][x+1].isDestroyed()) ++pMoves;
         }
-        if(x>0 && tiles[y][x-1].isNormal()) ++pMoves;
-        if(x<6 && tiles[y][x+1].isNormal()) ++pMoves;
+        if(x>0 && !tiles[y][x-1].isDestroyed()) ++pMoves;
+        if(x<6 && !tiles[y][x+1].isDestroyed()) ++pMoves;
         if((y =p.getRow()) < 6) {
-            if(tiles[y+1][x].isNormal()) ++pMoves;
-            if(x>0 && tiles[y+1][x-1].isNormal()) ++pMoves;
-            if(x<6 && tiles[y+1][x+1].isNormal()) ++pMoves;
+            if(!tiles[y+1][x].isDestroyed()) ++pMoves;
+            if(x>0 && !tiles[y+1][x-1].isDestroyed()) ++pMoves;
+            if(x<6 && !tiles[y+1][x+1].isDestroyed()) ++pMoves;
         }
         return pMoves;
     }

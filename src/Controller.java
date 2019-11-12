@@ -54,6 +54,10 @@ public class Controller {
         //board.calculatePlayerCoordinates(board.getOpponent());
         view.setModel(board);
         board.setGameState(1);
+        if(board.isLooser(board.getPlayer())) {
+            System.out.println("You Loose. GAME OVER");
+            endGameState = -1;
+        }
         board.setPlayerTurn(true);
     }
 
@@ -143,15 +147,9 @@ public class Controller {
                 }
             }
         }
-        if(board.isLooser(board.getPlayer())) {
-            System.out.println("You Loose. GAME OVER");
-            endGameState = -1;
-//            System.exit(0);
-        }
         if(board.isLooser(board.getOpponent())) {
             System.out.println("You Win. GAME OVER");
             endGameState = 1;
-//            System.exit(0);
         }
     }
 
