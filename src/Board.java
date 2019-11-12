@@ -27,7 +27,7 @@ public class Board {
         opponent = new Player(other.getOpponent().getRow(),other.getOpponent().getColumn(),2);
         this.calculatePlayerCoordinates(player);
         this.calculatePlayerCoordinates(opponent);
-        playerTurn = other.playerTurn;
+        playerTurn = !other.playerTurn;
         gameState = other.gameState;
     }
 

@@ -57,7 +57,7 @@ public class Controller {
         board.setPlayerTurn(true);
     }
 
-    private void AiTestMove() {
+ /*   private void AiTestMove() {
         Player opp = board.getOpponent();
         Tile[][] tiles = board.getTiles();
         for(int i = opp.getRow() - 1; i <= opp.getRow() + 1; i++) {
@@ -83,7 +83,7 @@ public class Controller {
                 }
             }
         }
-    }
+    }*/
 
     private void showAvailableMoves(int x, int y) {
         Player player = board.getPlayer();
