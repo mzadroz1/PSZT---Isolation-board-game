@@ -31,8 +31,11 @@ public class Controller {
                 showAvailableMoves(x,y);
             if(gameState == 2)
                 movePlayer(x,y);
-            if(gameState == 3)
-                destroyTile(x,y);
+            if(gameState == 3) {
+                destroyTile(x, y);
+                if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent()))
+                    AiTurn();
+            }
         }
     }
 
@@ -43,7 +46,21 @@ public class Controller {
         //My Strategy class test
         Strategy strategy = new Strategy(this.board);
         strategy.thinkDumb();
-
+        Movement move = strategy.predictedTurn;
+        if(board.getGameState() == 1) {
+            board.setGameState(2);
+            int[] dYX = Movement.translateStep(move.step); //dYX[0] == dY dYX[1] == dX
+            int newY = this.board.getOpponent().getRow()+dYX[0], newX = this.board.getOpponent().getColumn()+dYX[1];
+            board.movePlayer(this.board.getOpponent(),newY,newX);
+            board.setGameState(3);
+            board.destroyTile(move.destroyedY,move.destroyedX);
+            board.setGameState(1);
+            board.setPlayerTurn(true);
+        }
+        if(board.isLooser(board.getPlayer())) {
+            System.out.println("You Loose. GAME OVER");
+            endGameState = -1;
+        }
 
         return;
 //        ArrayList<Board> posMoves = board.generatePossibleBoards();
@@ -154,6 +171,7 @@ public class Controller {
                 }
             }
         }
+        board.setGameState(1);
         if(board.isLooser(board.getOpponent())) {
             System.out.println("You Win. GAME OVER");
             endGameState = 1;
@@ -168,8 +186,8 @@ public class Controller {
 
         @Override
         public void run() {
-            if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent()))
-                AiTurn();
+//            if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent()))
+//                AiTurn();
             view.updateView();
 
         }

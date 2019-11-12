@@ -20,6 +20,7 @@ public class Strategy {
             if(n.points<best.points)
                 best = n;
         }
+        predictedTurn = best.lastMove;
         System.out.println("Best move is: "+ best.lastMove.step.toString() +" Y: " + best.lastMove.destroyedY
                 +" X: " + best.lastMove.destroyedX);
     }
