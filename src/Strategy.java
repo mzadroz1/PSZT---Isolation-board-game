@@ -9,6 +9,21 @@ public class Strategy {
         predictedTurn = null;
     }
 
+    public void thinkDumb() {
+        ArrayList<Movement> checkIt = possibleMoves(root);
+        System.out.println(checkIt.size());
+        for (Movement move: checkIt) {
+            root.possibleMoves.add(new Node(root.gameState,move));
+        }
+        Node best = root.possibleMoves.get(0);
+        for(Node n: root.possibleMoves) {
+            if(n.points<best.points)
+                best = n;
+        }
+        System.out.println("Best move is: "+ best.lastMove.step.toString() +" Y: " + best.lastMove.destroyedY
+                +" X: " + best.lastMove.destroyedX);
+    }
+
     public ArrayList<Movement> possibleMoves(Node node) {
         ArrayList<Movement> possibles = new ArrayList<>();
         ArrayList<Step> steps = new ArrayList<>();
@@ -18,21 +33,21 @@ public class Strategy {
         else
             mover = node.gameState.getOpponent();
         int r = mover.getRow(), c = mover.getColumn();
-        if(node.gameState.getTiles()[r-1][c-1].isNormal())
+        if(r>=1 && c>=1 && node.gameState.getTiles()[r-1][c-1].isNormal())
             steps.add(Step.NW);
-        if(node.gameState.getTiles()[r-1][c].isNormal())
+        if(r>=1 && node.gameState.getTiles()[r-1][c].isNormal())
             steps.add(Step.N);
-        if(node.gameState.getTiles()[r-1][c+1].isNormal())
+        if(r>=1 && c<6 && node.gameState.getTiles()[r-1][c+1].isNormal())
             steps.add(Step.NE);
-        if(node.gameState.getTiles()[r][c-1].isNormal())
+        if(c>=1 && node.gameState.getTiles()[r][c-1].isNormal())
             steps.add(Step.W);
-        if(node.gameState.getTiles()[r][c+1].isNormal())
+        if(c<6 && node.gameState.getTiles()[r][c+1].isNormal())
             steps.add(Step.E);
-        if(node.gameState.getTiles()[r+1][c-1].isNormal())
+        if(r<6 && c>=1 && node.gameState.getTiles()[r+1][c-1].isNormal())
             steps.add(Step.SW);
-        if(node.gameState.getTiles()[r+1][c].isNormal())
+        if(r<6 && node.gameState.getTiles()[r+1][c].isNormal())
             steps.add(Step.S);
-        if(node.gameState.getTiles()[r+1][c+1].isNormal())
+        if(r<6 && c<6 && node.gameState.getTiles()[r+1][c+1].isNormal())
             steps.add(Step.SE);
 
 

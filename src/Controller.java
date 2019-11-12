@@ -39,26 +39,33 @@ public class Controller {
     private void AiTurn() {
         /*AiTestMove();
         AiTestDestroy();*/
-        ArrayList<Board> posMoves = board.generatePossibleBoards();
-        double min = Double.POSITIVE_INFINITY;
-        Board temp = new Board();
-        for(int i = 0; i < posMoves.size(); i++) {
-            double gameStateEval = posMoves.get(i).evalGameState();
-            if(gameStateEval < min) {
-                min = gameStateEval;
-                temp = posMoves.get(i);
-            }
-        }
+
+        //My Strategy class test
+        Strategy strategy = new Strategy(this.board);
+        strategy.thinkDumb();
+
+
+        return;
+//        ArrayList<Board> posMoves = board.generatePossibleBoards();
+//        double min = Double.POSITIVE_INFINITY;
+//        Board temp = new Board();
+//        for(int i = 0; i < posMoves.size(); i++) {
+//            double gameStateEval = posMoves.get(i).evalGameState();
+//            if(gameStateEval < min) {
+//                min = gameStateEval;
+//                temp = posMoves.get(i);
+//            }
+//        }
         //board.movePlayer(board.getOpponent(),temp.getOpponent().getRow(),temp.getOpponent().getColumn());
-        board = temp;
+//        board = temp;
         //board.calculatePlayerCoordinates(board.getOpponent());
-        view.setModel(board);
-        board.setGameState(1);
-        if(board.isLooser(board.getPlayer())) {
-            System.out.println("You Loose. GAME OVER");
-            endGameState = -1;
-        }
-        board.setPlayerTurn(true);
+//        view.setModel(board);
+//        board.setGameState(1);
+//        if(board.isLooser(board.getPlayer())) {
+//            System.out.println("You Loose. GAME OVER");
+//            endGameState = -1;
+//        }
+//        board.setPlayerTurn(true);
     }
 
  /*   private void AiTestMove() {
@@ -161,7 +168,7 @@ public class Controller {
 
         @Override
         public void run() {
-            if(!board.isPlayerTurn())
+            if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent()))
                 AiTurn();
             view.updateView();
 
