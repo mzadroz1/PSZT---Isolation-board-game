@@ -1,4 +1,6 @@
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Strategy {
     Node root;
@@ -32,37 +34,33 @@ public class Strategy {
     public ArrayList<Movement> possibleMoves(Node node) {
         ArrayList<Movement> possibles = new ArrayList<>();
         ArrayList<Step> steps = new ArrayList<>();
-        Player mover;
-        if(node.gameState.getPlayerTurn())
-            mover = node.gameState.getPlayer();
-        else
-            mover = node.gameState.getOpponent();
-        int r = mover.getRow(), c = mover.getColumn();
-        if(r>=1 && c>=1 && node.gameState.getTiles()[r-1][c-1].isNormal())
+
+        int r = node.getActiveY(), c = node.getActiveX();
+        if(r>=1 && c>=1 && node.board[r-1][c-1]==1)
             steps.add(Step.NW);
-        if(r>=1 && node.gameState.getTiles()[r-1][c].isNormal())
+        if(r>=1 && node.board[r-1][c]==1)
             steps.add(Step.N);
-        if(r>=1 && c<6 && node.gameState.getTiles()[r-1][c+1].isNormal())
+        if(r>=1 && c<6 && node.board[r-1][c+1]==1)
             steps.add(Step.NE);
-        if(c>=1 && node.gameState.getTiles()[r][c-1].isNormal())
+        if(c>=1 && node.board[r][c-1]==1)
             steps.add(Step.W);
-        if(c<6 && node.gameState.getTiles()[r][c+1].isNormal())
+        if(c<6 && node.board[r][c+1]==1)
             steps.add(Step.E);
-        if(r<6 && c>=1 && node.gameState.getTiles()[r+1][c-1].isNormal())
+        if(r<6 && c>=1 && node.board[r+1][c-1]==1)
             steps.add(Step.SW);
-        if(r<6 && node.gameState.getTiles()[r+1][c].isNormal())
+        if(r<6 && node.board[r+1][c]==1)
             steps.add(Step.S);
-        if(r<6 && c<6 && node.gameState.getTiles()[r+1][c+1].isNormal())
+        if(r<6 && c<6 && node.board[r+1][c+1]==1)
             steps.add(Step.SE);
 
         //dla kazdego kroku dostepnego znajduje dostepne zniszczenia kratek
         for(Step st: steps) {
             int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
-            int newY = mover.getRow()+dYX[0], newX = mover.getColumn()+dYX[1];
+            int newY = r+dYX[0], newX = c+dYX[1];
             for (int i = 0; i < 7; ++i)
                 for (int j = 0; j < 7; ++j) {
-                    if ((node.gameState.getTiles()[i][j].isNormal() && !(i==newY && j==newX))
-                            || (i==mover.getRow() && j==mover.getColumn())) {
+                    if ((node.board[i][j]==1 && !(i==newY && j==newX))
+                            || (i==r && j==c)) {
                         possibles.add(new Movement(st,i,j));
                     }
                 }
@@ -76,45 +74,126 @@ enum Step {
 }
 
 class Node {
-    Board gameState;
+
+    int[][] board;
+    int pY, oY, pX, oX;
+    boolean playerTurn;
     Movement lastMove;
-    double points;
     ArrayList<Node> possibleMoves;
 
     public Node(Board b) { // ten konstruktor tylko przy kopiowaniu boardu gry do roota strategii
-        this.gameState = new Board(b);
         possibleMoves = new ArrayList<>();
-        points = gameState.evalGameState();
+
+        board = new int[7][7];
+        for(int i=0; i<7; ++i)
+            for (int j=0; j<7; ++j)
+            {
+                board[i][j] = b.getTiles()[i][j].getType();
+            }
+
+        Player p = b.getPlayer();
+        pX = p.getColumn();
+        pY = p.getRow();
+        p = b.getOpponent();
+        oY = p.getRow();
+        oX = p.getColumn();
+
+        playerTurn = b.getPlayerTurn();
+
+//        points = Double.NaN;
+        lastMove = null;
     }
 
-    public Node(Board b, Movement movement) { // ten konstruktor do uzywania w minmaxie,
-        this(b);                              // sam robi ruch i zmienia czyj ruch nastepny (reprezentuje boarda
-                                              // po wykonanym ruchu przekazanym jako move
-        Player mover;
-        if(gameState.getPlayerTurn())
-            mover = gameState.getPlayer();
-        else
-            mover = gameState.getOpponent();
-        lastMove = movement;
-        int[] dYX = Movement.translateStep(movement.step);
-        int dY=dYX[0], dX=dYX[1];
-        int newX = mover.getColumn() + dX;
-        int newY = mover.getRow() + dY;
+    public Node(int[][] tab, int pY, int oY, int pX, int oX, boolean pTurn, Movement lMove) {
+        this.board = tab;
+        this.pY = pY;
+        this.pX = pX;
+        this.oY = oY;
+        this.oX = oX;
+        this.playerTurn = pTurn;
+        this.lastMove = lMove;
+        this.possibleMoves = new ArrayList<>();
+    }
 
-        if(newX>6 || newY>6 || newX<0 || newY<0 || !gameState.getTiles()[newY][newX].isNormal()) {
-            throw new IllegalArgumentException("AI has generated illegal move!");
+    public int getActiveY() {return playerTurn ? pY : oY;}
+    public int getActiveX() {return playerTurn ? pX : oX;}
+
+    public Node genSon(Movement movement) {
+        int[][] afterTurn = this.board.clone();
+        int[] dYX = Movement.translateStep(movement.step); //dYX[0] == dY dYX[1] == dX
+        if(playerTurn) {
+            int newY = pY+dYX[0], newX = pX+dYX[1];
+            if(afterTurn[newY][newX] >= 3 || afterTurn[movement.destroyedY][movement.destroyedX] != 1) {
+                throw new IllegalArgumentException("AI error, forbidden move(step)");
+            }
+            afterTurn[pY][pX] = 1;
+            afterTurn[newY][newX] = 4;
+            afterTurn[movement.destroyedY][movement.destroyedX] = 3;
+            return new Node(afterTurn,newY,oY,newX,oX,false,movement);
         }
-        gameState.movePlayer(mover, newY, newX);
 
-        if(!gameState.getTiles()[movement.destroyedY][movement.destroyedX].isNormal()) {
-            throw new IllegalArgumentException("AI has generated illegal tile destruction!");
+        int newY = oY+dYX[0], newX = oX+dYX[1];
+        if(afterTurn[newY][newX] >= 3 || afterTurn[movement.destroyedY][movement.destroyedX] != 1) {
+            throw new IllegalArgumentException("AI error, forbidden move(step)");
         }
-        gameState.destroyTile(movement.destroyedY,movement.destroyedX);
+        afterTurn[oY][oX] = 1;
+        afterTurn[newY][newX] = 4;
+        afterTurn[movement.destroyedY][movement.destroyedX] = 3;
+        return new Node(afterTurn,pY,newY,pX,newX,true,movement);
+    }
 
-        points = gameState.evalGameState();
+    public double eval() {
 
-        //UWAGA WAŻNE TUTAJ ZMIENIAM CZYJ JEST KOLEJNY RUCH!!!
-        gameState.setPlayerTurn(!gameState.getPlayerTurn());
+    }
+
+    private int possibleMoves(boolean forPlayer) {
+        int pMoves =0, x, y;
+        x = forPlayer ? pX : oX;
+        if((y = forPlayer ? pY : oY) > 0) {
+            if(board[y-1][x]==1) ++pMoves;
+            if(x>0 && board[y-1][x-1]==1) ++pMoves;
+            if(x<6 && board[y-1][x+1]==1) ++pMoves;
+        }
+        if(x>0 && board[y][x-1]==1) ++pMoves;
+        if(x<6 && board[y][x+1]==1) ++pMoves;
+        if(y < 6) {
+            if(board[y+1][x]==1) ++pMoves;
+            if(x>0 && board[y+1][x-1]==1) ++pMoves;
+            if(x<6 && board[y+1][x+1]==1) ++pMoves;
+        }
+        return pMoves;
+    }
+
+    private int teritory(boolean forPlayer) {
+        int x, y;
+        ArrayDeque<Tile> tmp = new ArrayDeque<>();
+        HashSet<Tile> field = new HashSet<>();
+
+        x = forPlayer ? pX : oX;
+        y = forPlayer ? pY : oY;
+//        tmp.add(tiles[y][x]);
+//
+//        while(tmp.size()>0) {
+//            Tile t = tmp.pollLast();
+//            y = t.getRow();
+//            x = t.getCol();
+//            if(t.isNormal()|| y==p.getRow()&&x==p.getColumn()) {
+//                if(t.isNormal()) field.add(t);
+//                if(y>0) {
+//                    if(!field.contains(tiles[y-1][x])) tmp.add(tiles[y-1][x]);
+//                    if(x>0 && !field.contains(tiles[y-1][x-1])) tmp.add(tiles[y-1][x-1]);
+//                    if(x<6 && !field.contains(tiles[y-1][x+1])) tmp.add(tiles[y-1][x+1]);
+//                }
+//                if(x>0 && !field.contains(tiles[y][x-1])) tmp.add(tiles[y][x-1]);
+//                if(x<6 && !field.contains(tiles[y][x+1])) tmp.add(tiles[y][x+1]);
+//                if(y<6) {
+//                    if(!field.contains(tiles[y+1][x])) tmp.add(tiles[y+1][x]);
+//                    if(x>0 && !field.contains(tiles[y+1][x-1])) tmp.add(tiles[y+1][x-1]);
+//                    if(x<6 && !field.contains(tiles[y+1][x+1])) tmp.add(tiles[y+1][x+1]);
+//                }
+//            }
+//        }
+//        return field.size();
     }
 
 }
@@ -123,6 +202,7 @@ class Movement {
     public Step step;
     public int destroyedX;
     public int destroyedY;
+
 
     public Movement(Step s, int y, int x) {
         step = s;

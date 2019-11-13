@@ -42,10 +42,6 @@ public class Controller {
     }
 
     private void AiTurn() {
-        /*AiTestMove();
-        AiTestDestroy();*/
-
-        //My Strategy class test
         Strategy strategy = new Strategy(this.board);
         strategy.thinkDumb();
         Movement move = strategy.predictedTurn;
@@ -64,55 +60,6 @@ public class Controller {
             endGameState = -1;
         }
     }
-//        ArrayList<Board> posMoves = board.generatePossibleBoards();
-//        double min = Double.POSITIVE_INFINITY;
-//        Board temp = new Board();
-//        for(int i = 0; i < posMoves.size(); i++) {
-//            double gameStateEval = posMoves.get(i).evalGameState();
-//            if(gameStateEval < min) {
-//                min = gameStateEval;
-//                temp = posMoves.get(i);
-//            }
-//        }
-        //board.movePlayer(board.getOpponent(),temp.getOpponent().getRow(),temp.getOpponent().getColumn());
-//        board = temp;
-        //board.calculatePlayerCoordinates(board.getOpponent());
-//        view.setModel(board);
-//        board.setGameState(1);
-//        if(board.isLooser(board.getPlayer())) {
-//            System.out.println("You Loose. GAME OVER");
-//            endGameState = -1;
-//        }
-//        board.setPlayerTurn(true);
-//    }
-
- /*   private void AiTestMove() {
-        Player opp = board.getOpponent();
-        Tile[][] tiles = board.getTiles();
-        for(int i = opp.getRow() - 1; i <= opp.getRow() + 1; i++) {
-            for(int j = opp.getColumn() - 1; j <= opp.getColumn() + 1; j++) {
-                if(i >= 0 && i <= 6 && j >= 0 && j <= 6) {
-                    if(tiles[i][j].isNormal()) {
-                        board.movePlayer(opp,i,j);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    private void AiTestDestroy() {
-        Tile[][] tiles = board.getTiles();
-        for(int i = 0; i < 7; i++) {
-            for(int j = 0; j < 7; j++) {
-                if(tiles[i][j].isNormal()) {
-                    tiles[i][j].setType(3);
-                    board.setPlayerTurn(true);
-                    return;
-                }
-            }
-        }
-    }*/
 
     private void showAvailableMoves(int x, int y) {
         Player player = board.getPlayer();
