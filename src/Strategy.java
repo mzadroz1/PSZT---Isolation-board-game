@@ -27,13 +27,16 @@ public class Strategy {
 
     public void bestMove() {
         ArrayList<Movement> checkIt = possibleMoves(root);
+//        for (Movement move: checkIt) {
+//            root.possibleMoves.add(new Node(root.gameState,move));
+//        }
+        Node best = null; //root.possibleMoves.get(0);
+//        for(Node n: root.possibleMoves) {
         for (Movement move: checkIt) {
-            root.possibleMoves.add(new Node(root.gameState,move));
-        }
-        Node best = root.possibleMoves.get(0);
-        for(Node n: root.possibleMoves) {
+            Node n = new Node(root.gameState,move);
+            root.possibleMoves.add(n);
             double val = minMax(n,1,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            if(val<best.gameState.evalGameState())
+            if(best == null || val<best.gameState.evalGameState())
                 best = n;
         }
         predictedTurn = best.lastMove;
@@ -45,11 +48,14 @@ public class Strategy {
         }
 
         ArrayList<Movement> checkIt = possibleMoves(node);
-        for (Movement move: checkIt) {
-            node.possibleMoves.add(new Node(node.gameState,move));
-        }
+//        for (Movement move: checkIt) {
+//            node.possibleMoves.add(new Node(node.gameState,move));
+//        }
         if(node.gameState.isPlayerTurn()) {
-            for(Node n : node.possibleMoves) {
+//            for(Node n : node.possibleMoves) {
+            for(Movement move: checkIt) {
+                Node n = new Node(node.gameState,move);
+                node.possibleMoves.add(n);
                 double val = minMax(n,depth-1,alpha,beta);
                 alpha = Math.max(val,alpha);
                 if(beta <= alpha)
@@ -58,7 +64,9 @@ public class Strategy {
             return alpha;
         }
         else {
-            for(Node n : node.possibleMoves) {
+//            for(Node n : node.possibleMoves) {
+            for(Movement move: checkIt) {
+                Node n = new Node(node.gameState,move);
                 double val = minMax(n,depth-1,alpha,beta);
                 beta = Math.min(val,beta);
                 if(beta <= alpha)
@@ -144,14 +152,14 @@ class Node {
         int newX = mover.getColumn() + dX;
         int newY = mover.getRow() + dY;
 
-        if(newX>6 || newY>6 || newX<0 || newY<0 || !gameState.getTiles()[newY][newX].isNormal()) {
-            throw new IllegalArgumentException("AI has generated illegal move!");
-        }
+//        if(newX>6 || newY>6 || newX<0 || newY<0 || !gameState.getTiles()[newY][newX].isNormal()) {
+//            throw new IllegalArgumentException("AI has generated illegal move!");
+//        }
         gameState.movePlayer(mover, newY, newX);
 
-        if(!gameState.getTiles()[movement.destroyedY][movement.destroyedX].isNormal()) {
-            throw new IllegalArgumentException("AI has generated illegal tile destruction!");
-        }
+//        if(!gameState.getTiles()[movement.destroyedY][movement.destroyedX].isNormal()) {
+//            throw new IllegalArgumentException("AI has generated illegal tile destruction!");
+//        }
         gameState.destroyTile(movement.destroyedY,movement.destroyedX);
 
         //points = gameState.evalGameState();
