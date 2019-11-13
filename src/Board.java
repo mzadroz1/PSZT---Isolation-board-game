@@ -8,8 +8,8 @@ public class Board {
     private boolean playerTurn; //false if it's AI turn, true if it's human player turn
     private int gameState;
 
-    public Board() {
-        initBoard();
+    public Board(boolean isPlayerFirst) {
+        initBoard(isPlayerFirst);
     }
 
     public Board(Board other) {
@@ -31,12 +31,12 @@ public class Board {
         gameState = other.gameState;
     }
 
-    public void initBoard() {
+    public void initBoard(boolean isPlayerTurn) {
         gameState = 1;
         player = new Player(6,3, 1);
         opponent = new Player(0,3, 2);
         tiles = new Tile[7][7];
-        playerTurn = true;
+        playerTurn = isPlayerTurn;
         for(int i = 0; i < 7; i++) {
             for(int j = 0; j< 7; j++) {
                 tiles[i][j] = new Tile();

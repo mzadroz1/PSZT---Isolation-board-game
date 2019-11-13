@@ -3,16 +3,18 @@ import java.awt.*;
 
 public class Main {
 
-    private static Board createModel() {
-        return new Board();
+    static boolean isPlayerTurn;
+
+    private static Board createModel(boolean isPlayerTurn) {
+        return new Board(isPlayerTurn);
     }
 
     private static Controller createController(Board b) {
         return new Controller(b);
     }
 
-    private static SwingView createModelViewController() {
-        Board b = createModel();
+    private static SwingView createModelViewController(boolean isPlayerTurn) {
+        Board b = createModel(isPlayerTurn);
         Controller c = createController(b);
         SwingView v = new SwingView();
         v.setModel(b);
@@ -35,13 +37,18 @@ public class Main {
         frame.setResizable(false);
         //frame.setSize(v.getSize());
         frame.setVisible(true);
-        SwingView v = createModelViewController();
+        SwingView v = createModelViewController(isPlayerTurn);
         frame.getContentPane().add(v);
         frame.pack();
         v.requestFocus();
     }
 
     public static void main(String[] args) {
+        isPlayerTurn =true;
+
+        if(args.length>=2 && args[1] == "-n")
+            isPlayerTurn = false;
+
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();

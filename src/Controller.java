@@ -37,6 +37,8 @@ public class Controller {
                     AiTurn();
             }
         }
+        else
+            AiTurn();
     }
 
     private void AiTurn() {
@@ -166,11 +168,12 @@ public class Controller {
                         else
                             player = board.getPlayer();*/
                         board.setPlayerTurn(false);
+                        board.setGameState(1);
                     }
                 }
             }
         }
-        board.setGameState(1);
+//        board.setGameState(1);
         if(board.isLooser(board.getOpponent())) {
             System.out.println("You Win. GAME OVER");
             endGameState = 1;
