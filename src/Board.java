@@ -16,7 +16,6 @@ public class Board {
         this.tiles = new Tile[7][7];
         for(int i = 0; i < 7; i++) {
             for(int j = 0; j< 7; j++) {
-//                this.tiles[i][j] = new Tile(other.getTiles()[i][j]);
                 tiles[i][j] = new Tile();
                 tiles[i][j].setType(other.getTiles()[i][j].getType());
                 tiles[i][j].positionOnBoard(i,j);
@@ -62,24 +61,14 @@ public class Board {
     }
 
     public boolean isLooser(Player player) {
-
-//        for(int x =player.getColumn()-1; x<=player.getColumn()+1;++x)
-//            for(int y =player.getRow()-1;y<=player.getRow()+1;++y) {
-//                if((x==player.getColumn() && y==player.getRow()) || x<0 || x>6 || y<0 || y>6)
-//                    continue;
-//                if(this.tiles[y][x].isNormal())
-//                    return false;
-//            }
-//
-//        return true;
         return this.possibleMoves(player)==0;
     }
 
     public double evalGameState() { // opponent - MIN, player - MAX
-        if(this.isLooser(opponent))
-            return Double.POSITIVE_INFINITY;
         if(this.isLooser(player))
             return Double.NEGATIVE_INFINITY;
+        if(this.isLooser(opponent))
+            return Double.POSITIVE_INFINITY;
         double evaluation = 0.0;
         evaluation -= 3.0*teritory(opponent);
         evaluation += 3.0*teritory(player);

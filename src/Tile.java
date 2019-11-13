@@ -11,7 +11,7 @@ public class Tile extends GameObject {
         getImageDimensions();
     }
 
-    public Tile(Tile other) {
+    public Tile(Tile other) {  // napisałem to ale nie chciało działać, rzucało błędami
         loadImage();
         getImageDimensions();
         this.type = other.type;

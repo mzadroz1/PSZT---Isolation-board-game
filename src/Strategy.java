@@ -9,7 +9,7 @@ public class Strategy {
         predictedTurn = null;
     }
 
-    public void thinkDumb() {
+    public void thinkDumb() { // to sprawdza tylko jeden poziom
         ArrayList<Movement> checkIt = possibleMoves(root);
         System.out.println(checkIt.size());
         for (Movement move: checkIt) {
@@ -25,6 +25,10 @@ public class Strategy {
                 +" X: " + best.lastMove.destroyedX);
     }
 
+    //zwraca listę dostępnych ruchów (krok + niszczenie kratki) na danej planszy w zaleznosci czyja kolej (sam sprawdza)
+    // ale nie generyje nowych nodów
+    // byc moze potem trzeba bedzie to polaczyc w minmaxie z obcinaniem ze sprawdzaniem stanu, zeby mniej mozliwych
+    // ruchow generowac
     public ArrayList<Movement> possibleMoves(Node node) {
         ArrayList<Movement> possibles = new ArrayList<>();
         ArrayList<Step> steps = new ArrayList<>();
@@ -51,7 +55,7 @@ public class Strategy {
         if(r<6 && c<6 && node.gameState.getTiles()[r+1][c+1].isNormal())
             steps.add(Step.SE);
 
-
+        //dla kazdego kroku dostepnego znajduje dostepne zniszczenia kratek
         for(Step st: steps) {
             int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
             int newY = mover.getRow()+dYX[0], newX = mover.getColumn()+dYX[1];
@@ -77,15 +81,15 @@ class Node {
     double points;
     ArrayList<Node> possibleMoves;
 
-    public Node(Board b) {
+    public Node(Board b) { // ten konstruktor tylko przy kopiowaniu boardu gry do roota strategii
         this.gameState = new Board(b);
         possibleMoves = new ArrayList<>();
         points = gameState.evalGameState();
     }
 
-    public Node(Board b, Movement movement) {
-        this(b);
-
+    public Node(Board b, Movement movement) { // ten konstruktor do uzywania w minmaxie,
+        this(b);                              // sam robi ruch i zmienia czyj ruch nastepny (reprezentuje boarda
+                                              // po wykonanym ruchu przekazanym jako move
         Player mover;
         if(gameState.getPlayerTurn())
             mover = gameState.getPlayer();
