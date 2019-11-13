@@ -37,7 +37,7 @@ public class Controller {
                     AiTurn();
             }
         }
-        else
+        else if(gameState == 1)
             AiTurn();
     }
 
@@ -56,8 +56,8 @@ public class Controller {
             board.movePlayer(this.board.getOpponent(), newY, newX);
             board.setGameState(3);
             board.destroyTile(move.destroyedY, move.destroyedX);
-            board.setGameState(1);
             board.setPlayerTurn(true);
+            board.setGameState(1);
         }
         if (board.isLooser(board.getPlayer())) {
             System.out.println("You Loose. GAME OVER");
