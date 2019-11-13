@@ -25,6 +25,49 @@ public class Strategy {
                 +" X: " + best.lastMove.destroyedX);
     }
 
+    public void bestMove() {
+        ArrayList<Movement> checkIt = possibleMoves(root);
+        for (Movement move: checkIt) {
+            root.possibleMoves.add(new Node(root.gameState,move));
+        }
+        Node best = root.possibleMoves.get(0);
+        for(Node n: root.possibleMoves) {
+            double val = minMax(n,1,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            if(val<best.gameState.evalGameState())
+                best = n;
+        }
+        predictedTurn = best.lastMove;
+    }
+
+    private double minMax(Node node, int depth, double alpha, double beta) {
+        if(depth == 0 || node.gameState.isGameOver()) {
+            return node.gameState.evalGameState();
+        }
+
+        ArrayList<Movement> checkIt = possibleMoves(node);
+        for (Movement move: checkIt) {
+            node.possibleMoves.add(new Node(node.gameState,move));
+        }
+        if(node.gameState.isPlayerTurn()) {
+            for(Node n : node.possibleMoves) {
+                double val = minMax(n,depth-1,alpha,beta);
+                alpha = Math.max(val,alpha);
+                if(beta <= alpha)
+                    break;
+            }
+            return alpha;
+        }
+        else {
+            for(Node n : node.possibleMoves) {
+                double val = minMax(n,depth-1,alpha,beta);
+                beta = Math.min(val,beta);
+                if(beta <= alpha)
+                    break;
+            }
+            return beta;
+        }
+    }
+
     //zwraca listę dostępnych ruchów (krok + niszczenie kratki) na danej planszy w zaleznosci czyja kolej (sam sprawdza)
     // ale nie generyje nowych nodów
     // byc moze potem trzeba bedzie to polaczyc w minmaxie z obcinaniem ze sprawdzaniem stanu, zeby mniej mozliwych
@@ -84,7 +127,7 @@ class Node {
     public Node(Board b) { // ten konstruktor tylko przy kopiowaniu boardu gry do roota strategii
         this.gameState = new Board(b);
         possibleMoves = new ArrayList<>();
-        points = gameState.evalGameState();
+        //points = gameState.evalGameState();
     }
 
     public Node(Board b, Movement movement) { // ten konstruktor do uzywania w minmaxie,
@@ -111,7 +154,7 @@ class Node {
         }
         gameState.destroyTile(movement.destroyedY,movement.destroyedX);
 
-        points = gameState.evalGameState();
+        //points = gameState.evalGameState();
 
         //UWAGA WAŻNE TUTAJ ZMIENIAM CZYJ JEST KOLEJNY RUCH!!!
         gameState.setPlayerTurn(!gameState.getPlayerTurn());

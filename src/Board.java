@@ -64,16 +64,23 @@ public class Board {
         return this.possibleMoves(player)==0;
     }
 
+    public boolean isGameOver() {
+        if(isLooser(player) || isLooser(opponent))
+            return true;
+        else
+            return false;
+    }
+
     public double evalGameState() { // opponent - MIN, player - MAX
         if(this.isLooser(player))
             return Double.NEGATIVE_INFINITY;
         if(this.isLooser(opponent))
             return Double.POSITIVE_INFINITY;
         double evaluation = 0.0;
-        evaluation -= 3.0*teritory(opponent);
-        evaluation += 3.0*teritory(player);
-        evaluation -= 0.25*possibleMoves(opponent);
-        evaluation += 0.25*possibleMoves(player);
+        //evaluation -= 3.0*teritory(opponent);
+        //evaluation += 3.0*teritory(player);
+        evaluation -= possibleMoves(opponent);
+        evaluation += possibleMoves(player);
 
         return evaluation;
     }

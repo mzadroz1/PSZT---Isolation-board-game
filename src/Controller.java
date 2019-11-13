@@ -33,8 +33,7 @@ public class Controller {
                 movePlayer(x,y);
             if(gameState == 3) {
                 destroyTile(x, y);
-                if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent()))
-                    AiTurn();
+
             }
         }
     }
@@ -45,7 +44,7 @@ public class Controller {
 
         //My Strategy class test
         Strategy strategy = new Strategy(this.board);
-        strategy.thinkDumb();
+        strategy.bestMove();
         Movement move = strategy.predictedTurn;
         if (board.getGameState() == 1) {
             board.setGameState(2);
@@ -166,11 +165,12 @@ public class Controller {
                         else
                             player = board.getPlayer();*/
                         board.setPlayerTurn(false);
+                        board.setGameState(1);
                     }
                 }
             }
         }
-        board.setGameState(1);
+
         if(board.isLooser(board.getOpponent())) {
             System.out.println("You Win. GAME OVER");
             endGameState = 1;
@@ -185,7 +185,10 @@ public class Controller {
 
         @Override
         public void run() {
+
             view.updateView();
+            if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent()))
+                AiTurn();
 
         }
     }
