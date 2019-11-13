@@ -46,7 +46,7 @@ public class Main {
     public static void main(String[] args) {
         isPlayerTurn =true;
 
-        if(args.length>=2 && args[1] == "-n")
+        if(args.length>=1 && args[0].equals("-n") )
             isPlayerTurn = false;
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
