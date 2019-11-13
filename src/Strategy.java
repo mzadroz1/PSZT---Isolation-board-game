@@ -61,7 +61,7 @@ public class Strategy {
             int newY = mover.getRow()+dYX[0], newX = mover.getColumn()+dYX[1];
             for (int i = 0; i < 7; ++i)
                 for (int j = 0; j < 7; ++j) {
-                    if ((node.gameState.getTiles()[i][j].isNormal() && i!=newY && j!=newX)
+                    if ((node.gameState.getTiles()[i][j].isNormal() && !(i==newY && j==newX))
                             || (i==mover.getRow() && j==mover.getColumn())) {
                         possibles.add(new Movement(st,i,j));
                     }
