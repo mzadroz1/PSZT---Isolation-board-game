@@ -11,7 +11,7 @@ public class Strategy {
         predictedTurn = null;
     }
 
-    public void thinkDumb() { // to sprawdza tylko jeden poziom
+    /*public void thinkDumb() { // to sprawdza tylko jeden poziom
         ArrayList<Movement> checkIt = possibleMoves(root);
         System.out.println(checkIt.size());
         for (Movement move: checkIt) {
@@ -28,8 +28,8 @@ public class Strategy {
         //System.out.println("Best move is: "+ best.lastMove.step.toString() +" Y: " + best.lastMove.destroyedY
          //       +" X: " + best.lastMove.destroyedX);
     }
-
-    public void minMax(int depth) {
+*/
+    public void minMax(int depth, boolean ter) {
         ArrayList<Movement> checkIt = possibleMoves(root);
 
         Node best = null; //root.possibleMoves.get(0);
@@ -37,16 +37,17 @@ public class Strategy {
         for (Movement move: checkIt) {
             Node n = root.genSon(move);
             root.possibleMoves.add(n);
-            double val = alphaBeta(n,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-            if(best == null || val < best.eval())
+            double val = alphaBeta(n,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, ter);
+            if(best == null || val < best.eval(ter))
                 best = n;
         }
+        //System.out.println(best.territoryDFS(false));
         predictedTurn = best.lastMove;
     }
 
-    private double alphaBeta(Node node, int depth, double alpha, double beta) {
+    private double alphaBeta(Node node, int depth, double alpha, double beta, boolean ter) {
         if(depth == 0 || node.isGameOver()) {
-            return node.eval();
+            return node.eval(ter);
         }
 
         ArrayList<Movement> checkIt = possibleMoves(node);
@@ -58,7 +59,7 @@ public class Strategy {
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
                 node.possibleMoves.add(n);
-                double val = alphaBeta(n,depth-1,alpha,beta);
+                double val = alphaBeta(n,depth-1,alpha,beta,ter);
                 alpha = Math.max(val,alpha);
                 if(beta <= alpha)
                     break;
@@ -69,7 +70,7 @@ public class Strategy {
 //            for(Node n : node.possibleMoves) {
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
-                double val = alphaBeta(n,depth-1,alpha,beta);
+                double val = alphaBeta(n,depth-1,alpha,beta,ter);
                 beta = Math.min(val,beta);
                 if(beta <= alpha)
                     break;
@@ -139,6 +140,8 @@ class Node {
     Movement lastMove;
     ArrayList<Node> possibleMoves;
 
+    boolean[][] visited;
+
     public Node(Board b) { // ten konstruktor tylko przy kopiowaniu boardu gry do roota strategii
         possibleMoves = new ArrayList<>();
 
@@ -148,6 +151,7 @@ class Node {
             {
                 board[i][j] = b.getTiles()[i][j].getType();
             }
+        visited = new boolean[7][7];
 
         Player p = b.getPlayer();
         pX = p.getColumn();
@@ -171,6 +175,7 @@ class Node {
         this.playerTurn = pTurn;
         this.lastMove = lMove;
         this.possibleMoves = new ArrayList<>();
+        visited = new boolean[7][7];
     }
 
     public int getActiveY() {return playerTurn ? pY : oY;}
@@ -227,9 +232,18 @@ class Node {
         return pMoves - oMoves; //+ teritory(true)*1.5 -teritory(false)*1.5;
     }
 
-    public double eval() {
+    public double eval3() {
         double playerPosition = nOfPMoves(true) - distanceToCenter(true);
         double oppPosition = nOfPMoves(false) - distanceToCenter(false);
+
+        return 3 *playerPosition/2 - oppPosition/2;
+    }
+
+    public double eval(boolean ter) {
+        if(!ter)
+            return eval3();
+        double playerPosition = territoryDFS(true)*0.3 + nOfPMoves(true) - distanceToCenter(true);
+        double oppPosition = territoryDFS(false)*0.3 + nOfPMoves(false) - distanceToCenter(false);
 
         return 3 *playerPosition/2 - oppPosition/2;
     }
@@ -259,7 +273,7 @@ class Node {
         return Math.sqrt(Math.pow(3 - x, 2) + Math.pow(3 - y, 2));
     }
 
-    private int teritory(boolean forPlayer) {
+    private int territory(boolean forPlayer) {
         int x, y;
         class Position {
             int row;
@@ -300,6 +314,34 @@ class Node {
             }
         }
         return field.size();
+    }
+
+    public int territoryDFS(boolean forPlayer) {
+        int size = 0, x, y;
+        //boolean[][] visited = new boolean[7][7];
+        for(int i = 0 ; i < 7; i++) {
+            for(int j = 0; j < 7; j++) {
+                visited[i][j] = false;
+            }
+        }
+        x = forPlayer ? pX : oX;
+        y = forPlayer ? pY : oY;
+
+        size = visitTile(x,y,size);
+        return size;
+    }
+
+    private int visitTile(int x, int y, int size) {
+        visited[x][y] = true;
+        size++;
+        for (int i = x - 1; i <= x + 1; ++i)
+            for (int j = y - 1; j <= y + 1; ++j) {
+                if (i >= 0 && i < 7 && j >= 0 && j < 7)
+                    if (board[i][j] == 1 && !visited[i][j]) {
+                        size = visitTile(i, j, size);
+                    }
+            }
+        return size;
     }
 
     boolean isGameOver() {
