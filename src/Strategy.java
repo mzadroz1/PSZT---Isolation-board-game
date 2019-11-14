@@ -13,7 +13,7 @@ public class Strategy {
 
     public void thinkDumb() { // to sprawdza tylko jeden poziom
         ArrayList<Movement> checkIt = possibleMoves(root);
-        //System.out.println(checkIt.size());
+        System.out.println(checkIt.size());
         for (Movement move: checkIt) {
             root.possibleMoves.add(root.genSon(move));
 //            root.show();
@@ -105,16 +105,22 @@ public class Strategy {
         if(r<6 && c<6 && node.board[r+1][c+1]==1)
             steps.add(Step.SE);
 
+//        System.out.println(steps.size());
+
         //dla kazdego kroku dostepnego znajduje dostepne zniszczenia kratek
         for(Step st: steps) {
             int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
             int newY = r+dYX[0], newX = c+dYX[1];
-            for (int i = 0; i < 7; ++i)
-                for (int j = 0; j < 7; ++j) {
-                    if ((node.board[i][j]==1 && !(i==newY && j==newX))
-                            || (i==r && j==c)) {
-                        possibles.add(new Movement(st,i,j));
-                    }
+            int targetY = node.getStaticY(), targetX = node.getStaticX();
+//            for (int i = targetY<2 ? 0 : targetY-2; i < 7 && i<=targetY+2; ++i)
+//                for (int j = targetX<2 ? 0 : targetX-2; j < 7 && i<=targetX+2; ++j) {
+            for(int i = targetY-2;i<=targetY+2;++i)
+                for(int j = targetX-2;j<=targetX+2;++j) {
+                    if(i>=0&&i<7 && j>=0&&j<7)
+                        if ((node.board[i][j]==1 && !(i==newY && j==newX))
+                                || (i==r && j==c)) {
+                            possibles.add(new Movement(st,i,j));
+                        }
                 }
         }
         return possibles;
@@ -169,6 +175,8 @@ class Node {
 
     public int getActiveY() {return playerTurn ? pY : oY;}
     public int getActiveX() {return playerTurn ? pX : oX;}
+    public int getStaticY() {return playerTurn ? oY : pY;}
+    public int getStaticX() {return playerTurn ? oX : pX;}
 
     public Node genSon(Movement movement) {
 //        int[][] afterTurn = this.board.clone();
