@@ -13,21 +13,71 @@ public class Strategy {
 
     public void thinkDumb() { // to sprawdza tylko jeden poziom
         ArrayList<Movement> checkIt = possibleMoves(root);
-        System.out.println(checkIt.size());
+        //System.out.println(checkIt.size());
         for (Movement move: checkIt) {
             root.possibleMoves.add(root.genSon(move));
 //            root.show();
-        } System.out.println("line: 20");
+        } //System.out.println("line: 20");
         Node best = root.possibleMoves.get(0);
-        System.out.println(root.possibleMoves.size());
+        //System.out.println(root.possibleMoves.size());
         for(Node n: root.possibleMoves) {
             if(n.eval()<=best.eval())
                 best = n;
-        }System.out.println("line: 26");
+        }//System.out.println("line: 26");
         predictedTurn = best.lastMove;
-        System.out.println("Best move is: "+ best.lastMove.step.toString() +" Y: " + best.lastMove.destroyedY
-                +" X: " + best.lastMove.destroyedX);
+        //System.out.println("Best move is: "+ best.lastMove.step.toString() +" Y: " + best.lastMove.destroyedY
+         //       +" X: " + best.lastMove.destroyedX);
     }
+
+    public void minMax(int depth) {
+        ArrayList<Movement> checkIt = possibleMoves(root);
+
+        Node best = null; //root.possibleMoves.get(0);
+//        for(Node n: root.possibleMoves) {
+        for (Movement move: checkIt) {
+            Node n = root.genSon(move);
+            root.possibleMoves.add(n);
+            double val = alphaBeta(n,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            if(best == null || val < best.eval())
+                best = n;
+        }
+        predictedTurn = best.lastMove;
+    }
+
+    private double alphaBeta(Node node, int depth, double alpha, double beta) {
+        if(depth == 0 || node.isGameOver()) {
+            return node.eval();
+        }
+
+        ArrayList<Movement> checkIt = possibleMoves(node);
+//        for (Movement move: checkIt) {
+//            node.possibleMoves.add(new Node(node.gameState,move));
+//        }
+        if(node.playerTurn) {
+//            for(Node n : node.possibleMoves) {
+            for(Movement move: checkIt) {
+                Node n = node.genSon(move);
+                node.possibleMoves.add(n);
+                double val = alphaBeta(n,depth-1,alpha,beta);
+                alpha = Math.max(val,alpha);
+                if(beta <= alpha)
+                    break;
+            }
+            return alpha;
+        }
+        else {
+//            for(Node n : node.possibleMoves) {
+            for(Movement move: checkIt) {
+                Node n = node.genSon(move);
+                double val = alphaBeta(n,depth-1,alpha,beta);
+                beta = Math.min(val,beta);
+                if(beta <= alpha)
+                    break;
+            }
+            return beta;
+        }
+    }
+
 
     //zwraca listę dostępnych ruchów (krok + niszczenie kratki) na danej planszy w zaleznosci czyja kolej (sam sprawdza)
     // ale nie generyje nowych nodów
@@ -122,12 +172,12 @@ class Node {
 
     public Node genSon(Movement movement) {
 //        int[][] afterTurn = this.board.clone();
-        System.out.println("line: 124");
+//        System.out.println("line: 124");
         int[][] afterTurn = new int[7][7];
         for (int i=0;i<7;++i)
             for (int j = 0; j < 7; ++j)
                 afterTurn[i][j] = board[i][j];
-        System.out.println("line: 129");
+//        System.out.println("line: 129");
 //        System.out.println(afterTurn + " " + board + afterTurn.equals(board));
         int[] dYX = Movement.translateStep(movement.step); //dYX[0] == dY dYX[1] == dX
         if(playerTurn) {
@@ -140,22 +190,22 @@ class Node {
             afterTurn[movement.destroyedY][movement.destroyedX] = 3;
             return new Node(afterTurn,newY,oY,newX,oX,false,movement);
         }
-        System.out.println("line: 142");
+//        System.out.println("line: 142");
         int newY = oY+dYX[0], newX = oX+dYX[1];
         afterTurn[oY][oX] = 1;
         if(afterTurn[newY][newX] >= 3 || afterTurn[movement.destroyedY][movement.destroyedX] != 1) {
-            for (int i=0;i<7;++i) {
-                for (int j = 0; j < 7; ++j)
-                    System.out.print(afterTurn[i][j]+" ");
-                System.out.println(" ");
-            }
+//            for (int i=0;i<7;++i) {
+//                for (int j = 0; j < 7; ++j)
+//                    System.out.print(afterTurn[i][j]+" ");
+//                System.out.println(" ");
+//            }
 //            System.out.println(afterTurn[newY][newX]);
-            System.out.println("Wrong move: "+ movement.step.toString() +" Y: " + movement.destroyedY
-                    +" X: " + movement.destroyedX);
+//            System.out.println("Wrong move: "+ movement.step.toString() +" Y: " + movement.destroyedY
+//                    +" X: " + movement.destroyedX);
             throw new IllegalArgumentException("AI error, forbidden move(step)");
         }
         afterTurn[newY][newX] = 4;
-        afterTurn[movement.destroyedY][movement.destroyedX] = 3; System.out.println("line: 157");
+        afterTurn[movement.destroyedY][movement.destroyedX] = 3; //System.out.println("line: 157");
 //        System.out.println("Good move: "+ movement.step.toString() +" Y: " + movement.destroyedY
 //                +" X: " + movement.destroyedX);
         return new Node(afterTurn,pY,newY,pX,newX,true,movement);
@@ -228,6 +278,10 @@ class Node {
             }
         }
         return field.size();
+    }
+
+    boolean isGameOver() {
+        return this.nOfPMoves(true)==0||this.nOfPMoves(false)==0;
     }
 
     void show() {
