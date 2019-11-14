@@ -219,12 +219,19 @@ class Node {
         return new Node(afterTurn,pY,newY,pX,newX,true,movement);
     }
 
-    public double eval() {
+    public double eval2() {
         double pMoves = this.nOfPMoves(true), oMoves = this.nOfPMoves(false);
         if(this.playerTurn && pMoves==0) return Double.NEGATIVE_INFINITY;
         else if(oMoves==0) return Double.POSITIVE_INFINITY;
 
         return pMoves - oMoves; //+ teritory(true)*1.5 -teritory(false)*1.5;
+    }
+
+    public double eval() {
+        double playerPosition = nOfPMoves(true) - distanceToCenter(true);
+        double oppPosition = nOfPMoves(false) - distanceToCenter(false);
+
+        return 3 *playerPosition/2 - oppPosition/2;
     }
 
     private int nOfPMoves(boolean forPlayer) {
@@ -243,6 +250,13 @@ class Node {
             if(x<6 && board[y+1][x+1]==1) ++pMoves;
         }
         return pMoves;
+    }
+
+    private double distanceToCenter(boolean forPlayer) {
+        int x,y;
+        x = forPlayer ? pX : oX;
+        y = forPlayer ? pY : oY;
+        return Math.sqrt(Math.pow(3 - x, 2) + Math.pow(3 - y, 2));
     }
 
     private int teritory(boolean forPlayer) {

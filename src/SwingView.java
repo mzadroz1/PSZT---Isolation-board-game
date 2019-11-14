@@ -21,14 +21,7 @@ public class SwingView extends JPanel implements View {
         return new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int x = e.getX();
-                int y = e.getY();
-                if(controller.getEndGameState()!=0)
-                    System.exit(0);
-                if(e.getButton() == MouseEvent.BUTTON1)
-                    controller.tileClicked(x,y);
-                if(e.getButton() == MouseEvent.BUTTON3)
-                    controller.showEval();
+
             }
 
             @Override
@@ -38,6 +31,14 @@ public class SwingView extends JPanel implements View {
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                int x = e.getX();
+                int y = e.getY();
+                if(controller.getEndGameState()!=0)
+                    System.exit(0);
+                if(e.getButton() == MouseEvent.BUTTON1)
+                    controller.tileClicked(x,y);
+                if(e.getButton() == MouseEvent.BUTTON3)
+                    controller.showEval();
 
             }
 

@@ -33,12 +33,10 @@ public class Controller {
                 movePlayer(x,y);
             if(gameState == 3) {
                 destroyTile(x, y);
-                if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent()))
-                    AiTurn();
             }
         }
-        else if(gameState == 1)
-            AiTurn();
+        /*else if(gameState == 1)
+            AiTurn();*/
     }
 
     private void AiTurn() {
@@ -138,6 +136,8 @@ public class Controller {
         public void run() {
             view.updateView();
 
+            if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent()))
+                AiTurn();
         }
     }
 
