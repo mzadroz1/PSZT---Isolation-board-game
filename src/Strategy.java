@@ -1,6 +1,5 @@
-import java.util.ArrayDeque;
+
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class Strategy {
     Node root;
@@ -11,29 +10,11 @@ public class Strategy {
         predictedTurn = null;
     }
 
-    public void thinkDumb() { // to sprawdza tylko jeden poziom
-        ArrayList<Movement> checkIt = possibleMoves(root);
-        System.out.println(checkIt.size());
-        for (Movement move: checkIt) {
-            root.possibleMoves.add(root.genSon(move));
-//            root.show();
-        } //System.out.println("line: 20");
-        Node best = root.possibleMoves.get(0);
-        //System.out.println(root.possibleMoves.size());
-        for(Node n: root.possibleMoves) {
-            if(n.eval()<=best.eval())
-                best = n;
-        }//System.out.println("line: 26");
-        predictedTurn = best.lastMove;
-        //System.out.println("Best move is: "+ best.lastMove.step.toString() +" Y: " + best.lastMove.destroyedY
-         //       +" X: " + best.lastMove.destroyedX);
-    }
-
     public void minMax(int depth) {
-        ArrayList<Movement> checkIt = possibleMoves(root);
+        ArrayList<Movement> checkIt = genPossibleMoves(root);
 
-        Node best = null; //root.possibleMoves.get(0);
-//        for(Node n: root.possibleMoves) {
+        Node best = null;
+
         for (Movement move: checkIt) {
             Node n = root.genSon(move);
             root.possibleMoves.add(n);
@@ -49,7 +30,7 @@ public class Strategy {
             return node.eval();
         }
 
-        ArrayList<Movement> checkIt = possibleMoves(node);
+        ArrayList<Movement> checkIt = genPossibleMoves(node);
 //        for (Movement move: checkIt) {
 //            node.possibleMoves.add(new Node(node.gameState,move));
 //        }
@@ -83,7 +64,7 @@ public class Strategy {
     // ale nie generyje nowych nodów
     // byc moze potem trzeba bedzie to polaczyc w minmaxie z obcinaniem ze sprawdzaniem stanu, zeby mniej mozliwych
     // ruchow generowac
-    public ArrayList<Movement> possibleMoves(Node node) {
+    public ArrayList<Movement> genPossibleMoves(Node node) {
         ArrayList<Movement> possibles = new ArrayList<>();
         ArrayList<Step> steps = new ArrayList<>();
 
@@ -112,8 +93,7 @@ public class Strategy {
             int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
             int newY = r+dYX[0], newX = c+dYX[1];
             int targetY = node.getStaticY(), targetX = node.getStaticX();
-//            for (int i = targetY<2 ? 0 : targetY-2; i < 7 && i<=targetY+2; ++i)
-//                for (int j = targetX<2 ? 0 : targetX-2; j < 7 && i<=targetX+2; ++j) {
+
             for(int i = targetY-2;i<=targetY+2;++i)
                 for(int j = targetX-2;j<=targetX+2;++j) {
                     if(i>=0&&i<7 && j>=0&&j<7)
@@ -179,14 +159,11 @@ class Node {
     public int getStaticX() {return playerTurn ? oX : pX;}
 
     public Node genSon(Movement movement) {
-//        int[][] afterTurn = this.board.clone();
-//        System.out.println("line: 124");
+
         int[][] afterTurn = new int[7][7];
         for (int i=0;i<7;++i)
             for (int j = 0; j < 7; ++j)
                 afterTurn[i][j] = board[i][j];
-//        System.out.println("line: 129");
-//        System.out.println(afterTurn + " " + board + afterTurn.equals(board));
         int[] dYX = Movement.translateStep(movement.step); //dYX[0] == dY dYX[1] == dX
         if(playerTurn) {
             int newY = pY+dYX[0], newX = pX+dYX[1];
@@ -198,24 +175,14 @@ class Node {
             afterTurn[movement.destroyedY][movement.destroyedX] = 3;
             return new Node(afterTurn,newY,oY,newX,oX,false,movement);
         }
-//        System.out.println("line: 142");
         int newY = oY+dYX[0], newX = oX+dYX[1];
         afterTurn[oY][oX] = 1;
         if(afterTurn[newY][newX] >= 3 || afterTurn[movement.destroyedY][movement.destroyedX] != 1) {
-//            for (int i=0;i<7;++i) {
-//                for (int j = 0; j < 7; ++j)
-//                    System.out.print(afterTurn[i][j]+" ");
-//                System.out.println(" ");
-//            }
-//            System.out.println(afterTurn[newY][newX]);
-//            System.out.println("Wrong move: "+ movement.step.toString() +" Y: " + movement.destroyedY
-//                    +" X: " + movement.destroyedX);
             throw new IllegalArgumentException("AI error, forbidden move(step)");
         }
         afterTurn[newY][newX] = 4;
         afterTurn[movement.destroyedY][movement.destroyedX] = 3; //System.out.println("line: 157");
-//        System.out.println("Good move: "+ movement.step.toString() +" Y: " + movement.destroyedY
-//                +" X: " + movement.destroyedX);
+
         return new Node(afterTurn,pY,newY,pX,newX,true,movement);
     }
 
@@ -259,60 +226,9 @@ class Node {
         return Math.sqrt(Math.pow(3 - x, 2) + Math.pow(3 - y, 2));
     }
 
-    private int teritory(boolean forPlayer) {
-        int x, y;
-        class Position {
-            int row;
-            int col;
-            Position(int r, int c) {row = r; col = c;}
-            Position change(int r, int c) {this.row=r; this.col=c; return this;}
-        }
-        ArrayDeque<Position> tmp = new ArrayDeque<>();
-        HashSet<Position> field = new HashSet<>();
-        x = forPlayer ? pX : oX;
-        y = forPlayer ? pY : oY;
-        Position curr, t=new Position(-1,-1);
-        tmp.add(new Position(y,x));
-        while (tmp.size()>0) {
-            curr = tmp.poll();
-            if(board[curr.row][curr.col]!=3) {
-                field.add(curr);
-                if(curr.row>0) {
-                    if(!field.contains(t.change(curr.row-1,curr.col)))
-                        tmp.add(new Position(curr.row-1,curr.col));
-                    if(curr.col>0 && !field.contains(t.change(curr.row-1,curr.col-1)))
-                        tmp.add(new Position(curr.row-1,curr.col-1));
-                    if(curr.col<6 && !field.contains(t.change(curr.row-1,curr.col+1)))
-                        tmp.add(new Position(curr.row-1,curr.col+1));
-                }
-                if(curr.col>0 && !field.contains(t.change(curr.row,curr.col-1)))
-                    tmp.add(new Position(curr.row,curr.col-1));
-                if(curr.col<6 && !field.contains(t.change(curr.row,curr.col+1)))
-                    tmp.add(new Position(curr.row,curr.col+1));
-                if(curr.row<6) {
-                    if(!field.contains(t.change(curr.row+1,curr.col)))
-                        tmp.add(new Position(curr.row+1,curr.col));
-                    if(curr.col>0 && !field.contains(t.change(curr.row+1,curr.col-1)))
-                        tmp.add(new Position(curr.row+1,curr.col-1));
-                    if(curr.col<6 && !field.contains(t.change(curr.row+1,curr.col+1)))
-                        tmp.add(new Position(curr.row+1,curr.col+1));
-                }
-            }
-        }
-        return field.size();
-    }
 
     boolean isGameOver() {
         return this.nOfPMoves(true)==0||this.nOfPMoves(false)==0;
-    }
-
-    void show() {
-        for (int i=0;i<7;++i) {
-            for (int j = 0; j < 7; ++j)
-                System.out.print(board[i][j]+" ");
-            System.out.println("");
-        }
-        System.out.println("");
     }
 
 }
