@@ -233,6 +233,11 @@ class Node {
     }
 
     public double eval3() {
+        int pMoves = nOfPMoves(true), oMoves = nOfPMoves(false);
+        if(pMoves==0)
+            return Double.NEGATIVE_INFINITY;
+        if(oMoves==0)
+            return Double.POSITIVE_INFINITY;
         double playerPosition = nOfPMoves(true) - distanceToCenter(true);
         double oppPosition = nOfPMoves(false) - distanceToCenter(false);
 
@@ -242,8 +247,13 @@ class Node {
     public double eval(boolean ter) {
         if(!ter)
             return eval3();
-        double playerPosition = territoryDFS(true)*0.3 + nOfPMoves(true) - distanceToCenter(true);
-        double oppPosition = territoryDFS(false)*0.3 + nOfPMoves(false) - distanceToCenter(false);
+        int pMoves = nOfPMoves(true), oMoves = nOfPMoves(false);
+        if(pMoves==0)
+            return Double.NEGATIVE_INFINITY;
+        if(oMoves==0)
+            return Double.POSITIVE_INFINITY;
+        double playerPosition = territoryDFS(true)*0.5 + pMoves;// - distanceToCenter(true);
+        double oppPosition = territoryDFS(false)*0.5 + oMoves;// - distanceToCenter(false);
 
         return 3 *playerPosition/2 - oppPosition/2;
     }
