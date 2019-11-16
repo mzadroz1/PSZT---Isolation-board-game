@@ -142,7 +142,7 @@ public class Controller {
 
             if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent())) {
                 AiTurn();
-                if(++turnNumber == 10)
+                if(++turnNumber == 4)
                     calculateTerritory = true;
             }
         }

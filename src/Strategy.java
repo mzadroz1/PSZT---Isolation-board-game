@@ -5,30 +5,34 @@ import java.util.HashSet;
 public class Strategy {
     Node root;
     Movement predictedTurn;
+    int sizeNodes;
 
     public Strategy(Board board) {
         root = new Node(board);
         predictedTurn = null;
+        sizeNodes = 1;
     }
 
-    /*public void thinkDumb() { // to sprawdza tylko jeden poziom
+    public void thinkDumb() { // to sprawdza tylko jeden poziom
         ArrayList<Movement> checkIt = possibleMoves(root);
         System.out.println(checkIt.size());
         for (Movement move: checkIt) {
             root.possibleMoves.add(root.genSon(move));
+            ++sizeNodes;
 //            root.show();
         } //System.out.println("line: 20");
         Node best = root.possibleMoves.get(0);
         //System.out.println(root.possibleMoves.size());
         for(Node n: root.possibleMoves) {
-            if(n.eval()<=best.eval())
+            if(n.eval(true)<=best.eval(true))
                 best = n;
         }//System.out.println("line: 26");
         predictedTurn = best.lastMove;
         //System.out.println("Best move is: "+ best.lastMove.step.toString() +" Y: " + best.lastMove.destroyedY
          //       +" X: " + best.lastMove.destroyedX);
+        System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
     }
-*/
+
     public void minMax(int depth, boolean ter) {
         ArrayList<Movement> checkIt = possibleMoves(root);
 
@@ -36,6 +40,7 @@ public class Strategy {
 //        for(Node n: root.possibleMoves) {
         for (Movement move: checkIt) {
             Node n = root.genSon(move);
+            ++sizeNodes;
             root.possibleMoves.add(n);
             double val = alphaBeta(n,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, ter);
             if(best == null || val < best.eval(ter))
@@ -43,6 +48,7 @@ public class Strategy {
         }
         //System.out.println(best.territoryDFS(false));
         predictedTurn = best.lastMove;
+        System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
     }
 
     private double alphaBeta(Node node, int depth, double alpha, double beta, boolean ter) {
@@ -58,6 +64,7 @@ public class Strategy {
 //            for(Node n : node.possibleMoves) {
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
+                ++sizeNodes;
                 node.possibleMoves.add(n);
                 double val = alphaBeta(n,depth-1,alpha,beta,ter);
                 alpha = Math.max(val,alpha);
@@ -70,6 +77,7 @@ public class Strategy {
 //            for(Node n : node.possibleMoves) {
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
+                ++sizeNodes;
                 double val = alphaBeta(n,depth-1,alpha,beta,ter);
                 beta = Math.min(val,beta);
                 if(beta <= alpha)
@@ -126,6 +134,7 @@ public class Strategy {
         }
         return possibles;
     }
+
 }
 
 enum Step {
@@ -238,10 +247,10 @@ class Node {
             return Double.NEGATIVE_INFINITY;
         if(oMoves==0)
             return Double.POSITIVE_INFINITY;
-        double playerPosition = nOfPMoves(true) - distanceToCenter(true);
-        double oppPosition = nOfPMoves(false) - distanceToCenter(false);
+        double playerPosition = pMoves - distanceToCenter(true);
+        double oppPosition = oMoves - distanceToCenter(false);
 
-        return 3 *playerPosition/2 - oppPosition/2;
+        return playerPosition/1.95 - oppPosition/2;
     }
 
     public double eval(boolean ter) {
@@ -252,10 +261,10 @@ class Node {
             return Double.NEGATIVE_INFINITY;
         if(oMoves==0)
             return Double.POSITIVE_INFINITY;
-        double playerPosition = territoryDFS(true)*0.5 + pMoves;// - distanceToCenter(true);
-        double oppPosition = territoryDFS(false)*0.5 + oMoves;// - distanceToCenter(false);
+        double playerPosition = territoryDFS(true)*1.2 + pMoves - distanceToCenter(true)*0.5;
+        double oppPosition = territoryDFS(false)*1.2 + oMoves - distanceToCenter(false)*0.5;
 
-        return 3 *playerPosition/2 - oppPosition/2;
+        return playerPosition/2 - oppPosition/2;
     }
 
     private int nOfPMoves(boolean forPlayer) {
