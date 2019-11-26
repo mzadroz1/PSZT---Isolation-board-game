@@ -45,8 +45,8 @@ public class Controller {
 
     private void AiTurn() {
         Strategy strategy = new Strategy(this.board);
-//        strategy.minMax(3,calculateTerritory);
-        strategy.thinkDumb();
+        strategy.minMax(3,calculateTerritory);
+//        strategy.thinkDumb();
         Movement move = strategy.predictedTurn;
         if (board.getGameState() == 1) {
             board.setGameState(2);

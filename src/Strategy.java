@@ -1,5 +1,6 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
 public class Strategy {
@@ -39,7 +40,6 @@ public class Strategy {
 
     public void minMax(int depth, boolean ter) {
         ArrayList<Movement> checkIt = possibleMoves(root);
-
         Node best = null;
         for (Movement move: checkIt) {
             Node n = root.genSon(move);
@@ -63,7 +63,7 @@ public class Strategy {
 //            node.possibleMoves.add(new Node(node.gameState,move));
 //        }
         if(node.playerTurn) {
-//            for(Node n : node.possibleMoves) {
+
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
                 ++sizeNodes;
@@ -121,8 +121,8 @@ public class Strategy {
             int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
             int newY = r+dYX[0], newX = c+dYX[1];
             int targetY = node.getStaticY(), targetX = node.getStaticX();
-            for(int i = targetY-1;i<=targetY+1;++i)
-                for(int j = targetX-1;j<=targetX+1;++j) {
+            for(int i = targetY-2;i<=targetY+2;++i)
+                for(int j = targetX-2;j<=targetX+2;++j) {
                     if(i>=0&&i<7 && j>=0&&j<7)
                         if ((node.board[i][j]==1 && !(i==newY && j==newX))
                                 || (i==r && j==c)) {
@@ -130,6 +130,8 @@ public class Strategy {
                         }
                 }
         }
+        Collections.shuffle(possibles);
+//        System.out.println("Possible moves for turn is: " + possibles.size());
         return possibles;
     }
 
@@ -228,10 +230,10 @@ class Node {
             return Double.NEGATIVE_INFINITY;
         if(oMoves==0)
             return Double.POSITIVE_INFINITY;
-        double playerPosition = pMoves - distanceToCenter(true);
-        double oppPosition = oMoves - distanceToCenter(false);
+        double playerPosition = 4*pMoves - distanceToCenter(true);
+        double oppPosition = 4*oMoves - distanceToCenter(false);
 
-        return playerPosition/1.95 - oppPosition/2;
+        return playerPosition/2 - oppPosition/2;
     }
 
     public double eval(boolean ter) {
@@ -242,8 +244,8 @@ class Node {
             return Double.NEGATIVE_INFINITY;
         if(oMoves==0)
             return Double.POSITIVE_INFINITY;
-        double playerPosition = territoryDFS(true)*1.2 + pMoves - distanceToCenter(true)*0.5;
-        double oppPosition = territoryDFS(false)*1.2 + oMoves - distanceToCenter(false)*0.5;
+        double playerPosition = territoryDFS(true)*5 + pMoves*1.5 - distanceToCenter(true);
+        double oppPosition = territoryDFS(false)*5 + oMoves*1.5 - distanceToCenter(false);
 
         return playerPosition/2 - oppPosition/2;
     }
@@ -273,52 +275,8 @@ class Node {
         return Math.sqrt(Math.pow(3 - x, 2) + Math.pow(3 - y, 2));
     }
 
-    private int territory(boolean forPlayer) {
-        int x, y;
-        class Position {
-            int row;
-            int col;
-            Position(int r, int c) {row = r; col = c;}
-            Position change(int r, int c) {this.row=r; this.col=c; return this;}
-        }
-        ArrayDeque<Position> tmp = new ArrayDeque<>();
-        HashSet<Position> field = new HashSet<>();
-        x = forPlayer ? pX : oX;
-        y = forPlayer ? pY : oY;
-        Position curr, t=new Position(-1,-1);
-        tmp.add(new Position(y,x));
-        while (tmp.size()>0) {
-            curr = tmp.poll();
-            if(board[curr.row][curr.col]!=3) {
-                field.add(curr);
-                if(curr.row>0) {
-                    if(!field.contains(t.change(curr.row-1,curr.col)))
-                        tmp.add(new Position(curr.row-1,curr.col));
-                    if(curr.col>0 && !field.contains(t.change(curr.row-1,curr.col-1)))
-                        tmp.add(new Position(curr.row-1,curr.col-1));
-                    if(curr.col<6 && !field.contains(t.change(curr.row-1,curr.col+1)))
-                        tmp.add(new Position(curr.row-1,curr.col+1));
-                }
-                if(curr.col>0 && !field.contains(t.change(curr.row,curr.col-1)))
-                    tmp.add(new Position(curr.row,curr.col-1));
-                if(curr.col<6 && !field.contains(t.change(curr.row,curr.col+1)))
-                    tmp.add(new Position(curr.row,curr.col+1));
-                if(curr.row<6) {
-                    if(!field.contains(t.change(curr.row+1,curr.col)))
-                        tmp.add(new Position(curr.row+1,curr.col));
-                    if(curr.col>0 && !field.contains(t.change(curr.row+1,curr.col-1)))
-                        tmp.add(new Position(curr.row+1,curr.col-1));
-                    if(curr.col<6 && !field.contains(t.change(curr.row+1,curr.col+1)))
-                        tmp.add(new Position(curr.row+1,curr.col+1));
-                }
-            }
-        }
-        return field.size();
-    }
-
     public int territoryDFS(boolean forPlayer) {
         int size = 0, x, y;
-        //boolean[][] visited = new boolean[7][7];
         for(int i = 0 ; i < 7; i++) {
             for(int j = 0; j < 7; j++) {
                 visited[i][j] = false;
@@ -327,16 +285,16 @@ class Node {
         x = forPlayer ? pX : oX;
         y = forPlayer ? pY : oY;
 
-        size = visitTile(x,y,size);
+        size = visitTile(y,x,size);
         return size;
     }
 
-    private int visitTile(int x, int y, int size) {
-        visited[x][y] = true;
+    private int visitTile(int y, int x, int size) {
+        visited[y][x] = true;
         size++;
-        for (int i = x - 1; i <= x + 1; ++i)
-            for (int j = y - 1; j <= y + 1; ++j) {
-                if (i >= 0 && i < 7 && j >= 0 && j < 7)
+        for (int i = y - 1; i <= y + 1; ++i)
+            for (int j = x - 1; j <= x + 1; ++j) {
+                if ((i >= 0 && i < 7) && (j >= 0 && j < 7))
                     if (board[i][j] == 1 && !visited[i][j]) {
                         size = visitTile(i, j, size);
                     }
