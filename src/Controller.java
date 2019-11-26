@@ -45,8 +45,8 @@ public class Controller {
 
     private void AiTurn() {
         Strategy strategy = new Strategy(this.board);
-        strategy.minMax(3,calculateTerritory);
-//        strategy.thinkDumb();
+//        strategy.minMax(3,calculateTerritory);
+        strategy.thinkDumb();
         Movement move = strategy.predictedTurn;
         if (board.getGameState() == 1) {
             board.setGameState(2);
@@ -57,6 +57,7 @@ public class Controller {
             board.destroyTile(move.destroyedY, move.destroyedX);
             board.setPlayerTurn(true);
             board.setGameState(1);
+            Strategy strategy2 = new Strategy(this.board); strategy2.showStats();
         }
         if (board.isLooser(board.getPlayer())) {
             System.out.println("You Loose. GAME OVER");

@@ -19,25 +19,27 @@ public class Strategy {
         for (Movement move: checkIt) {
             root.possibleMoves.add(root.genSon(move));
             ++sizeNodes;
-//            root.show();
-        } //System.out.println("line: 20");
+        }
         Node best = root.possibleMoves.get(0);
-        //System.out.println(root.possibleMoves.size());
         for(Node n: root.possibleMoves) {
             if(n.eval(true)<=best.eval(true))
                 best = n;
-        }//System.out.println("line: 26");
+        }
         predictedTurn = best.lastMove;
-        //System.out.println("Best move is: "+ best.lastMove.step.toString() +" Y: " + best.lastMove.destroyedY
-         //       +" X: " + best.lastMove.destroyedX);
+    }
+
+    public void showStats() {
         System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
+        System.out.println("Player teritory" + root.territoryDFS(true));
+        System.out.println("AI teritory" + root.territoryDFS(false));
+        System.out.println("Player moves" + root.nOfPMoves(true));
+        System.out.println("AI moves" + root.nOfPMoves(false));
     }
 
     public void minMax(int depth, boolean ter) {
         ArrayList<Movement> checkIt = possibleMoves(root);
 
-        Node best = null; //root.possibleMoves.get(0);
-//        for(Node n: root.possibleMoves) {
+        Node best = null;
         for (Movement move: checkIt) {
             Node n = root.genSon(move);
             ++sizeNodes;
@@ -46,7 +48,6 @@ public class Strategy {
             if(best == null || val < best.eval(ter))
                 best = n;
         }
-        //System.out.println(best.territoryDFS(false));
         predictedTurn = best.lastMove;
         System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
     }
@@ -114,17 +115,13 @@ public class Strategy {
         if(r<6 && c<6 && node.board[r+1][c+1]==1)
             steps.add(Step.SE);
 
-//        System.out.println(steps.size());
-
         //dla kazdego kroku dostepnego znajduje dostepne zniszczenia kratek
         for(Step st: steps) {
             int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
             int newY = r+dYX[0], newX = c+dYX[1];
             int targetY = node.getStaticY(), targetX = node.getStaticX();
-//            for (int i = targetY<2 ? 0 : targetY-2; i < 7 && i<=targetY+2; ++i)
-//                for (int j = targetX<2 ? 0 : targetX-2; j < 7 && i<=targetX+2; ++j) {
-            for(int i = targetY-2;i<=targetY+2;++i)
-                for(int j = targetX-2;j<=targetX+2;++j) {
+            for(int i = targetY-1;i<=targetY+1;++i)
+                for(int j = targetX-1;j<=targetX+1;++j) {
                     if(i>=0&&i<7 && j>=0&&j<7)
                         if ((node.board[i][j]==1 && !(i==newY && j==newX))
                                 || (i==r && j==c)) {
@@ -170,8 +167,6 @@ class Node {
         oX = p.getColumn();
 
         playerTurn = b.getPlayerTurn();
-
-//        points = Double.NaN;
         lastMove = null;
     }
 
@@ -193,14 +188,10 @@ class Node {
     public int getStaticX() {return playerTurn ? oX : pX;}
 
     public Node genSon(Movement movement) {
-//        int[][] afterTurn = this.board.clone();
-//        System.out.println("line: 124");
         int[][] afterTurn = new int[7][7];
         for (int i=0;i<7;++i)
             for (int j = 0; j < 7; ++j)
                 afterTurn[i][j] = board[i][j];
-//        System.out.println("line: 129");
-//        System.out.println(afterTurn + " " + board + afterTurn.equals(board));
         int[] dYX = Movement.translateStep(movement.step); //dYX[0] == dY dYX[1] == dX
         if(playerTurn) {
             int newY = pY+dYX[0], newX = pX+dYX[1];
@@ -212,24 +203,13 @@ class Node {
             afterTurn[movement.destroyedY][movement.destroyedX] = 3;
             return new Node(afterTurn,newY,oY,newX,oX,false,movement);
         }
-//        System.out.println("line: 142");
         int newY = oY+dYX[0], newX = oX+dYX[1];
         afterTurn[oY][oX] = 1;
         if(afterTurn[newY][newX] >= 3 || afterTurn[movement.destroyedY][movement.destroyedX] != 1) {
-//            for (int i=0;i<7;++i) {
-//                for (int j = 0; j < 7; ++j)
-//                    System.out.print(afterTurn[i][j]+" ");
-//                System.out.println(" ");
-//            }
-//            System.out.println(afterTurn[newY][newX]);
-//            System.out.println("Wrong move: "+ movement.step.toString() +" Y: " + movement.destroyedY
-//                    +" X: " + movement.destroyedX);
             throw new IllegalArgumentException("AI error, forbidden move(step)");
         }
         afterTurn[newY][newX] = 4;
-        afterTurn[movement.destroyedY][movement.destroyedX] = 3; //System.out.println("line: 157");
-//        System.out.println("Good move: "+ movement.step.toString() +" Y: " + movement.destroyedY
-//                +" X: " + movement.destroyedX);
+        afterTurn[movement.destroyedY][movement.destroyedX] = 3;
         return new Node(afterTurn,pY,newY,pX,newX,true,movement);
     }
 
@@ -267,7 +247,7 @@ class Node {
         return playerPosition/2 - oppPosition/2;
     }
 
-    private int nOfPMoves(boolean forPlayer) {
+    int nOfPMoves(boolean forPlayer) {
         int pMoves =0, x, y;
         x = forPlayer ? pX : oX;
         if((y = forPlayer ? pY : oY) > 0) {
