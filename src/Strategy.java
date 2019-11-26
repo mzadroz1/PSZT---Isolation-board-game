@@ -29,11 +29,12 @@ public class Strategy {
     }
 
     public void showStats() {
+        root.show();
         System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
-        System.out.println("Player teritory" + root.territoryDFS(true));
-        System.out.println("AI teritory" + root.territoryDFS(false));
-        System.out.println("Player moves" + root.nOfPMoves(true));
-        System.out.println("AI moves" + root.nOfPMoves(false));
+        System.out.println("AI teritory " + root.territoryDFS(false));
+        System.out.println("Player teritory " + root.territoryDFS(true));
+        System.out.println("Player moves " + root.nOfPMoves(true));
+        System.out.println("AI moves " + root.nOfPMoves(false));
     }
 
     public void minMax(int depth, boolean ter) {
