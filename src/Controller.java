@@ -13,7 +13,6 @@ public class Controller {
 
     public Controller(Board board) {
         this.board = board;
-        //this.board = new Board(board);
         endGameState = 0;
         turnNumber = 0;
         calculateTerritory = false;
@@ -39,12 +38,11 @@ public class Controller {
                 destroyTile(x, y);
             }
         }
-        /*else if(gameState == 1)
-            AiTurn();*/
     }
 
     private void AiTurn() {
         Strategy strategy = new Strategy(this.board);
+        if(calculateTerritory) System.out.println("Teritority phase");
         strategy.minMax(3,calculateTerritory);
 //        strategy.thinkDumb();
         Movement move = strategy.predictedTurn;
@@ -113,18 +111,12 @@ public class Controller {
                 if(tiles[i][j].isPointInsideTile(x,y)) {
                     if(tiles[i][j].isNormal()) {
                         board.destroyTile(i,j);
-
-                        /*if(player == board.getPlayer())
-                            player = board.getOpponent();
-                        else
-                            player = board.getPlayer();*/
                         board.setPlayerTurn(false);
                         board.setGameState(1);
                     }
                 }
             }
         }
-//        board.setGameState(1);
         if(board.isLooser(board.getOpponent())) {
             System.out.println("You Win. GAME OVER");
             endGameState = 1;
@@ -143,7 +135,7 @@ public class Controller {
 
             if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent())) {
                 AiTurn();
-                if(++turnNumber == 4)
+                if(++turnNumber == 6)
                     calculateTerritory = true;
             }
         }

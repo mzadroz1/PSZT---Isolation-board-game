@@ -11,14 +11,6 @@ public class Tile extends GameObject {
         getImageDimensions();
     }
 
-    public Tile(Tile other) {  // napisałem to ale nie chciało działać, rzucało błędami
-        loadImage();
-        getImageDimensions();
-        this.type = other.type;
-        this.col = other.col;
-        this.row = other.row;
-    }
-
     public Tile(int x, int y, int type) {
 
         initBrick(x, y, type);

@@ -1,7 +1,6 @@
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+
 
 public class Strategy {
     Node root;
@@ -14,8 +13,8 @@ public class Strategy {
         sizeNodes = 1;
     }
 
-    public void thinkDumb() { // to sprawdza tylko jeden poziom
-        ArrayList<Movement> checkIt = possibleMoves(root);
+    public void thinkDumb() { // to sprawdza tylko jeden poziom, do testowania
+        ArrayList<Movement> checkIt = possibleMoves(root, true);
         System.out.println(checkIt.size());
         for (Movement move: checkIt) {
             root.possibleMoves.add(root.genSon(move));
@@ -39,7 +38,7 @@ public class Strategy {
     }
 
     public void minMax(int depth, boolean ter) {
-        ArrayList<Movement> checkIt = possibleMoves(root);
+        ArrayList<Movement> checkIt = possibleMoves(root,ter);
         Node best = null;
         for (Movement move: checkIt) {
             Node n = root.genSon(move);
@@ -50,7 +49,7 @@ public class Strategy {
                 best = n;
         }
         predictedTurn = best.lastMove;
-        System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
+//        System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
     }
 
     private double alphaBeta(Node node, int depth, double alpha, double beta, boolean ter) {
@@ -58,12 +57,8 @@ public class Strategy {
             return node.eval(ter);
         }
 
-        ArrayList<Movement> checkIt = possibleMoves(node);
-//        for (Movement move: checkIt) {
-//            node.possibleMoves.add(new Node(node.gameState,move));
-//        }
+        ArrayList<Movement> checkIt = possibleMoves(node, ter);
         if(node.playerTurn) {
-
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
                 ++sizeNodes;
@@ -76,7 +71,6 @@ public class Strategy {
             return alpha;
         }
         else {
-//            for(Node n : node.possibleMoves) {
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
                 ++sizeNodes;
@@ -89,12 +83,9 @@ public class Strategy {
         }
     }
 
-
     //zwraca listę dostępnych ruchów (krok + niszczenie kratki) na danej planszy w zaleznosci czyja kolej (sam sprawdza)
     // ale nie generyje nowych nodów
-    // byc moze potem trzeba bedzie to polaczyc w minmaxie z obcinaniem ze sprawdzaniem stanu, zeby mniej mozliwych
-    // ruchow generowac
-    public ArrayList<Movement> possibleMoves(Node node) {
+    public ArrayList<Movement> possibleMoves(Node node, boolean ter) {
         ArrayList<Movement> possibles = new ArrayList<>();
         ArrayList<Step> steps = new ArrayList<>();
 
@@ -115,23 +106,38 @@ public class Strategy {
             steps.add(Step.S);
         if(r<6 && c<6 && node.board[r+1][c+1]==1)
             steps.add(Step.SE);
-
+// kiedy terytorium gracza jest odpowiednio male to możemy ograniczyć się tylko do ruchów redukujących je
+        if(node.territoryDFS(true)<24) {
+            for(Step st: steps) {
+                int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
+                int newY = r+dYX[0], newX = c+dYX[1];
+                for(int i = 0;i<7;++i)
+                    for(int j = 0;j<7;++j) {
+                        if(node.visited[i][j])
+                            if ((node.board[i][j]==1 && !(i==newY && j==newX))
+                                    || (i==r && j==c)) {
+                                possibles.add(new Movement(st,i,j));
+                            }
+                    }
+            }
+        }
         //dla kazdego kroku dostepnego znajduje dostepne zniszczenia kratek
-        for(Step st: steps) {
-            int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
-            int newY = r+dYX[0], newX = c+dYX[1];
-            int targetY = node.getStaticY(), targetX = node.getStaticX();
-            for(int i = targetY-2;i<=targetY+2;++i)
-                for(int j = targetX-2;j<=targetX+2;++j) {
-                    if(i>=0&&i<7 && j>=0&&j<7)
-                        if ((node.board[i][j]==1 && !(i==newY && j==newX))
-                                || (i==r && j==c)) {
-                            possibles.add(new Movement(st,i,j));
-                        }
-                }
+        else {
+            for(Step st: steps) {
+                int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
+                int newY = r+dYX[0], newX = c+dYX[1];
+                int targetY = node.getStaticY(), targetX = node.getStaticX();
+                for(int i = targetY-2;i<=targetY+2;++i)
+                    for(int j = targetX-2;j<=targetX+2;++j) {
+                        if(i>=0&&i<7 && j>=0&&j<7)
+                            if ((node.board[i][j]==1 && !(i==newY && j==newX))
+                                    || (i==r && j==c)) {
+                                possibles.add(new Movement(st,i,j));
+                            }
+                    }
+            }
         }
         Collections.shuffle(possibles);
-//        System.out.println("Possible moves for turn is: " + possibles.size());
         return possibles;
     }
 
@@ -216,15 +222,7 @@ class Node {
         return new Node(afterTurn,pY,newY,pX,newX,true,movement);
     }
 
-    public double eval2() {
-        double pMoves = this.nOfPMoves(true), oMoves = this.nOfPMoves(false);
-        if(this.playerTurn && pMoves==0) return Double.NEGATIVE_INFINITY;
-        else if(oMoves==0) return Double.POSITIVE_INFINITY;
-
-        return pMoves - oMoves; //+ teritory(true)*1.5 -teritory(false)*1.5;
-    }
-
-    public double eval3() {
+    public double evalSimple() {
         int pMoves = nOfPMoves(true), oMoves = nOfPMoves(false);
         if(pMoves==0)
             return Double.NEGATIVE_INFINITY;
@@ -238,7 +236,7 @@ class Node {
 
     public double eval(boolean ter) {
         if(!ter)
-            return eval3();
+            return evalSimple();
         int pMoves = nOfPMoves(true), oMoves = nOfPMoves(false);
         if(pMoves==0)
             return Double.NEGATIVE_INFINITY;
@@ -249,7 +247,7 @@ class Node {
 
         return playerPosition/2 - oppPosition/2;
     }
-
+//liczy liczbę dostępnych posunięć pionka
     int nOfPMoves(boolean forPlayer) {
         int pMoves =0, x, y;
         x = forPlayer ? pX : oX;
@@ -274,7 +272,7 @@ class Node {
         y = forPlayer ? pY : oY;
         return Math.sqrt(Math.pow(3 - x, 2) + Math.pow(3 - y, 2));
     }
-
+// liczymy obszar mapy, który jest wciąż dostępny dla pionka
     public int territoryDFS(boolean forPlayer) {
         int size = 0, x, y;
         for(int i = 0 ; i < 7; i++) {
@@ -306,7 +304,7 @@ class Node {
         return this.nOfPMoves(true)==0||this.nOfPMoves(false)==0;
     }
 
-    void show() {
+    void show() { //debug function
         for (int i=0;i<7;++i) {
             for (int j = 0; j < 7; ++j)
                 System.out.print(board[i][j]+" ");
@@ -317,6 +315,7 @@ class Node {
 
 }
 
+// klasa reprezentująca ruch gracza w turze tj. posunięcie pionka i usunięcie kafelka
 class Movement {
     public Step step;
     public int destroyedX;
