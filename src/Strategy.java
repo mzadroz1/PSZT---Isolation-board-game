@@ -30,7 +30,6 @@ public class Strategy {
 
     public void showStats() {
         root.show();
-        System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
         System.out.println("AI teritory " + root.territoryDFS(false));
         System.out.println("Player teritory " + root.territoryDFS(true));
         System.out.println("Player moves " + root.nOfPMoves(true));
@@ -38,47 +37,48 @@ public class Strategy {
     }
 
     public void minMax(int depth, boolean ter) {
-        ArrayList<Movement> checkIt = possibleMoves(root,ter);
-        Node best = null;
-        for (Movement move: checkIt) {
-            Node n = root.genSon(move);
-            ++sizeNodes;
-            root.possibleMoves.add(n);
-            double val = alphaBeta(n,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, ter);
-            if(best == null || val < best.eval(ter))
-                best = n;
+        System.out.println("Rood childs: " + root.possibleMoves.size());
+        double val = alphaBeta(root,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, ter);
+        for (Node n: root.possibleMoves){
+            if(n.evaluation==val) {
+                predictedTurn = n.lastMove;
+                break;
+            }
         }
-        predictedTurn = best.lastMove;
-//        System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
+        System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
     }
 
     private double alphaBeta(Node node, int depth, double alpha, double beta, boolean ter) {
         if(depth == 0 || node.isGameOver()) {
-            return node.eval(ter);
+            node.evaluation = node.eval(ter);
+            return node.evaluation;
         }
 
         ArrayList<Movement> checkIt = possibleMoves(node, ter);
         if(node.playerTurn) {
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
-                ++sizeNodes;
                 node.possibleMoves.add(n);
+                ++sizeNodes;
                 double val = alphaBeta(n,depth-1,alpha,beta,ter);
                 alpha = Math.max(val,alpha);
                 if(beta <= alpha)
                     break;
             }
+            node.evaluation = alpha;
             return alpha;
         }
         else {
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
+                node.possibleMoves.add(n);
                 ++sizeNodes;
                 double val = alphaBeta(n,depth-1,alpha,beta,ter);
                 beta = Math.min(val,beta);
                 if(beta <= alpha)
                     break;
             }
+            node.evaluation = beta;
             return beta;
         }
     }
@@ -154,7 +154,7 @@ class Node {
     boolean playerTurn;
     Movement lastMove;
     ArrayList<Node> possibleMoves;
-
+    double evaluation;
     boolean[][] visited;
 
     public Node(Board b) { // ten konstruktor tylko przy kopiowaniu boardu gry do roota strategii

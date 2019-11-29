@@ -42,8 +42,8 @@ public class Controller {
 
     private void AiTurn() {
         Strategy strategy = new Strategy(this.board);
-        if(calculateTerritory) System.out.println("Teritority phase");
-        strategy.minMax(3,calculateTerritory);
+        if(calculateTerritory) System.out.println("Territory phase");
+        strategy.minMax(4,calculateTerritory);
 //        strategy.thinkDumb();
         Movement move = strategy.predictedTurn;
         if (board.getGameState() == 1) {
