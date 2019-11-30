@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.Scanner;
 
 public class Main {
 
@@ -45,8 +46,21 @@ public class Main {
 
     public static void main(String[] args) {
 
-        isPlayerTurn = args.length < 1 || !args[0].equals("-n");
-
+        isPlayerTurn = (args.length < 1) || !args[0].equals("-n");
+        /*String input;
+        while(true) {
+            System.out.println("Kto rozpoczyna grę?");
+            System.out.println("0 - Gracz");
+            System.out.println("1 - Oponent sterowany przez AI");
+            Scanner scan = new Scanner(System.in);
+            input = scan.nextLine();
+            if (input.equals("0") || input.equals("1"))
+                break;
+            else
+                System.out.println("Podano nieprawidłowy znak, spróbuj ponownie: ");
+        }
+        isPlayerTurn = input.equals("0") ? true : false;
+        */
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();

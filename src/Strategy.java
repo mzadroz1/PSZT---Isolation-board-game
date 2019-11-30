@@ -13,20 +13,6 @@ public class Strategy {
         sizeNodes = 1;
     }
 
-    public void thinkDumb() { // to sprawdza tylko jeden poziom, do testowania
-        ArrayList<Movement> checkIt = possibleMoves(root, true);
-        System.out.println(checkIt.size());
-        for (Movement move: checkIt) {
-            root.possibleMoves.add(root.genSon(move));
-            ++sizeNodes;
-        }
-        Node best = root.possibleMoves.get(0);
-        for(Node n: root.possibleMoves) {
-            if(n.eval(true)<=best.eval(true))
-                best = n;
-        }
-        predictedTurn = best.lastMove;
-    }
 
     public void showStats() {
         root.show();
@@ -36,9 +22,8 @@ public class Strategy {
         System.out.println("AI moves " + root.nOfPMoves(false));
     }
 
-    public void minMax(int depth, boolean ter) {
-        System.out.println("Rood childs: " + root.possibleMoves.size());
-        double val = alphaBeta(root,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, ter);
+    public void minMax(int depth) {
+        double val = alphaBeta(root,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         for (Node n: root.possibleMoves){
             if(n.evaluation==val) {
                 predictedTurn = n.lastMove;
@@ -48,19 +33,19 @@ public class Strategy {
         System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
     }
 
-    private double alphaBeta(Node node, int depth, double alpha, double beta, boolean ter) {
+    private double alphaBeta(Node node, int depth, double alpha, double beta) {
         if(depth == 0 || node.isGameOver()) {
-            node.evaluation = node.eval(ter);
+            node.evaluation = node.eval();
             return node.evaluation;
         }
 
-        ArrayList<Movement> checkIt = possibleMoves(node, ter);
+        ArrayList<Movement> checkIt = possibleMoves(node);
         if(node.playerTurn) {
             for(Movement move: checkIt) {
                 Node n = node.genSon(move);
                 node.possibleMoves.add(n);
                 ++sizeNodes;
-                double val = alphaBeta(n,depth-1,alpha,beta,ter);
+                double val = alphaBeta(n,depth-1,alpha,beta);
                 alpha = Math.max(val,alpha);
                 if(beta <= alpha)
                     break;
@@ -73,7 +58,7 @@ public class Strategy {
                 Node n = node.genSon(move);
                 node.possibleMoves.add(n);
                 ++sizeNodes;
-                double val = alphaBeta(n,depth-1,alpha,beta,ter);
+                double val = alphaBeta(n,depth-1,alpha,beta);
                 beta = Math.min(val,beta);
                 if(beta <= alpha)
                     break;
@@ -85,7 +70,7 @@ public class Strategy {
 
     //zwraca listę dostępnych ruchów (krok + niszczenie kratki) na danej planszy w zaleznosci czyja kolej (sam sprawdza)
     // ale nie generyje nowych nodów
-    public ArrayList<Movement> possibleMoves(Node node, boolean ter) {
+    private ArrayList<Movement> possibleMoves(Node node) {
         ArrayList<Movement> possibles = new ArrayList<>();
         ArrayList<Step> steps = new ArrayList<>();
 
@@ -106,23 +91,7 @@ public class Strategy {
             steps.add(Step.S);
         if(r<6 && c<6 && node.board[r+1][c+1]==1)
             steps.add(Step.SE);
-// kiedy terytorium gracza jest odpowiednio male to możemy ograniczyć się tylko do ruchów redukujących je
-        if(node.territoryDFS(true)<24) {
-            for(Step st: steps) {
-                int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
-                int newY = r+dYX[0], newX = c+dYX[1];
-                for(int i = 0;i<7;++i)
-                    for(int j = 0;j<7;++j) {
-                        if(node.visited[i][j])
-                            if ((node.board[i][j]==1 && !(i==newY && j==newX))
-                                    || (i==r && j==c)) {
-                                possibles.add(new Movement(st,i,j));
-                            }
-                    }
-            }
-        }
-        //dla kazdego kroku dostepnego znajduje dostepne zniszczenia kratek
-        else {
+
             for(Step st: steps) {
                 int[] dYX = Movement.translateStep(st); //dYX[0] == dY dYX[1] == dX
                 int newY = r+dYX[0], newX = c+dYX[1];
@@ -136,7 +105,6 @@ public class Strategy {
                             }
                     }
             }
-        }
         Collections.shuffle(possibles);
         return possibles;
     }
@@ -155,7 +123,7 @@ class Node {
     Movement lastMove;
     ArrayList<Node> possibleMoves;
     double evaluation;
-    boolean[][] visited;
+    private boolean[][] visited;
 
     public Node(Board b) { // ten konstruktor tylko przy kopiowaniu boardu gry do roota strategii
         possibleMoves = new ArrayList<>();
@@ -234,9 +202,7 @@ class Node {
         return playerPosition/2 - oppPosition/2;
     }
 
-    public double eval(boolean ter) {
-        if(!ter)
-            return evalSimple();
+    public double eval() {
         int pMoves = nOfPMoves(true), oMoves = nOfPMoves(false);
         if(pMoves==0)
             return Double.NEGATIVE_INFINITY;
@@ -308,9 +274,9 @@ class Node {
         for (int i=0;i<7;++i) {
             for (int j = 0; j < 7; ++j)
                 System.out.print(board[i][j]+" ");
-            System.out.println("");
+            System.out.println();
         }
-        System.out.println("");
+        System.out.println();
     }
 
 }

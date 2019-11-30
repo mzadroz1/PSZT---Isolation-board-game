@@ -8,14 +8,10 @@ public class Controller {
     private Timer timer;
     private View view;
     private int endGameState; //0 -gra w trakcie, -1 - gracz przegrał 1 - gracz wygrał
-    private int turnNumber;
-    private boolean calculateTerritory;
 
     public Controller(Board board) {
         this.board = board;
         endGameState = 0;
-        turnNumber = 0;
-        calculateTerritory = false;
         timer = new Timer();
         final int INITIAL_DELAY = 50;
         final int PERIOD_INTERVAL = 6;
@@ -42,8 +38,7 @@ public class Controller {
 
     private void AiTurn() {
         Strategy strategy = new Strategy(this.board);
-        if(calculateTerritory) System.out.println("Territory phase");
-        strategy.minMax(4,calculateTerritory);
+        strategy.minMax(4);
 //        strategy.thinkDumb();
         Movement move = strategy.predictedTurn;
         if (board.getGameState() == 1) {
@@ -135,8 +130,6 @@ public class Controller {
 
             if(!board.isPlayerTurn() && !board.isLooser(board.getOpponent())) {
                 AiTurn();
-                if(++turnNumber == 1)
-                    calculateTerritory = true;
             }
         }
     }

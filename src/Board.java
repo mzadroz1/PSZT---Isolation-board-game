@@ -78,35 +78,6 @@ public class Board {
         return evaluation;
     }
 
-    public ArrayList<Board> generatePossibleBoards() {
-        ArrayList<Board> result = new ArrayList<>();
-        Player currPlayer = getOpponent();
-
-
-        int x = currPlayer.getRow(), y = currPlayer.getColumn();
-        for(int i = x - 1; i <= x + 1; i++) {
-            for(int j = y - 1; j <= y + 1; j++) {
-                if (i >= 0 && i <= 6 && j >= 0 && j <= 6) {
-                    if (tiles[i][j].isNormal()) {
-                        for (int k = 0; k < 7; k++) {
-                            for (int l = 0; l < 7; l++) {
-                                if (tiles[k][l].isNormal()) {
-                                    Board child = new Board(this);
-
-                                    child.movePlayer(child.getOpponent(), i, j);
-                                    //child.getTiles()[x][y].setType(1);
-                                    child.destroyTile(k, l);
-                                    result.add(child);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
 
     public void movePlayer(Player player, int row, int col) {
         tiles[player.getRow()][player.getColumn()].setType(1);
