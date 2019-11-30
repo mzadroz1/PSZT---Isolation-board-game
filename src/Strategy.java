@@ -242,8 +242,8 @@ class Node {
             return Double.NEGATIVE_INFINITY;
         if(oMoves==0)
             return Double.POSITIVE_INFINITY;
-        double playerPosition = territoryDFS(true)*5 + pMoves*1.5 - distanceToCenter(true);
-        double oppPosition = territoryDFS(false)*5 + oMoves*1.5 - distanceToCenter(false);
+        double playerPosition = territoryDFS(true)*0.5 + pMoves*1.5 - distanceToCenter(true);
+        double oppPosition = territoryDFS(false)*0.5 + oMoves*1.5 - distanceToCenter(false);
 
         return playerPosition/2 - oppPosition/2;
     }
