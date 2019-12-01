@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class Main {
 
     static boolean isPlayerTurn;
+    static int depth;
 
     private static Board createModel(boolean isPlayerTurn) {
         return new Board(isPlayerTurn);
@@ -46,7 +47,39 @@ public class Main {
 
     public static void main(String[] args) {
 
-        isPlayerTurn = (args.length < 1) || !args[0].equals("-n");
+        //default
+            isPlayerTurn = true;
+            depth = 4;
+
+        if(args.length == 2 || args.length == 4) {
+            if(args[0].equals("-first")) {
+                if(args[1].equals("player"))
+                    isPlayerTurn = true;
+                if(args[1].equals("ai")) {
+                    isPlayerTurn = false;
+                }
+            }
+            if(args[0].equals("-depth"))
+                depth = Integer.parseInt(args[1]);
+
+            if(args.length == 4) {
+                if(args[2].equals("-first")) {
+                    if(args[3].equals("player"))
+                        isPlayerTurn = true;
+                    if(args[3].equals("ai")) {
+                        isPlayerTurn = false;
+                    }
+                }
+                if(args[2].equals("-depth"))
+                    depth = Integer.parseInt(args[3]);
+            }
+        }
+
+        /*isPlayerTurn = (args.length < 1) || !args[0].equals("-n");
+        if(args.length < 2)
+            depth = 4;
+        else
+            depth = Integer.parseInt(args[1]);*/
         /*String input;
         while(true) {
             System.out.println("Kto rozpoczyna grę?");
