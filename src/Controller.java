@@ -51,16 +51,33 @@ public class Controller {
             }
         }
     }
-
-    void AiTurn() {
+    Movement measureTime(Writer writer, int depth) {
         Strategy strategy = new Strategy(this.board);
+        long millisActualTime = System.currentTimeMillis(); // początkowy czas w milisekundach.
+        strategy.minMax(depth,writer);
+        long executionTime = System.currentTimeMillis() - millisActualTime; // czas wykonania programu w milisekundach.
+        try {
+            writer.write(Integer.toString((int) executionTime));
+            writer.write("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        strategy.minMax1(3,writer2);
-        strategy.minMax(3,writer1);
+        //strategy.minMax1(3,writer2);
+
         //strategy.minMax(3,writer3);
         //strategy.minMax(4,writer4);
 //        strategy.thinkDumb();
         Movement move = strategy.predictedTurn;
+        return move;
+    }
+
+    void AiTurn() {
+
+        Movement move = measureTime(writer1,1);
+        move = measureTime(writer2,2);
+        move = measureTime(writer3,3);
+        move = measureTime(writer4,4);
         if (board.getGameState() == 1) {
             board.setGameState(2);
             int[] dYX = Movement.translateStep(move.step); //dYX[0] == dY dYX[1] == dX

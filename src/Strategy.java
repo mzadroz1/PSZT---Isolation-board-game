@@ -33,12 +33,12 @@ public class Strategy {
             }
         }
 
-        try {
+        /*try {
             writer.write(Integer.toString(sizeNodes));
             writer.write("\n");
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
         sizeNodes = 1;
@@ -88,12 +88,12 @@ public class Strategy {
             }
         }
 
-        try {
+        /*try {
             writer.write(Integer.toString(sizeNodes));
             writer.write("\n");
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
         sizeNodes = 1;
@@ -111,7 +111,7 @@ public class Strategy {
                 Node n = node.genSon(move);
                 node.possibleMoves.add(n);
                 ++sizeNodes;
-                double val = alphaBeta(n,depth-1,alpha,beta);
+                double val = alphaBeta1(n,depth-1,alpha,beta);
                 alpha = Math.max(val,alpha);
                 //if(beta <= alpha)
                 //break;
@@ -124,7 +124,7 @@ public class Strategy {
                 Node n = node.genSon(move);
                 node.possibleMoves.add(n);
                 ++sizeNodes;
-                double val = alphaBeta(n,depth-1,alpha,beta);
+                double val = alphaBeta1(n,depth-1,alpha,beta);
                 beta = Math.min(val,beta);
                 //if(beta <= alpha)
                 //break;
