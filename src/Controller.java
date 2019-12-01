@@ -1,13 +1,15 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Controller {
 
-    private Board board;
+     Board board;
     private Timer timer;
-    private View view;
+    View view;
     private int endGameState; //0 -gra w trakcie, -1 - gracz przegrał 1 - gracz wygrał
+    Writer writer1,writer2,writer3,writer4;
 
     public Controller(Board board) {
         this.board = board;
@@ -17,6 +19,20 @@ public class Controller {
         final int PERIOD_INTERVAL = 6;
         timer.scheduleAtFixedRate(new ScheduleTask(),
                 INITIAL_DELAY, PERIOD_INTERVAL);
+
+
+        try {
+            writer1 = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream("writer1.txt"), "utf-8"));
+            writer2 = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream("writer2.txt"), "utf-8"));
+            writer3 = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream("writer3.txt"), "utf-8"));
+            writer4 = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream("writer4.txt"), "utf-8"));
+        } catch (IOException ex) {
+            // Report
+        }
     }
 
     public void setView(View v) {
@@ -36,9 +52,13 @@ public class Controller {
         }
     }
 
-    private void AiTurn() {
+    void AiTurn() {
         Strategy strategy = new Strategy(this.board);
-        strategy.minMax(Main.depth);
+
+        strategy.minMax1(3,writer2);
+        strategy.minMax(3,writer1);
+        //strategy.minMax(3,writer3);
+        //strategy.minMax(4,writer4);
 //        strategy.thinkDumb();
         Movement move = strategy.predictedTurn;
         if (board.getGameState() == 1) {
@@ -54,6 +74,14 @@ public class Controller {
         }
         if (board.isLooser(board.getPlayer())) {
             System.out.println("You Loose. GAME OVER");
+            try {
+                writer1.close();
+                writer2.close();
+                writer3.close();
+                writer4.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             endGameState = -1;
         }
     }
@@ -114,6 +142,14 @@ public class Controller {
         }
         if(board.isLooser(board.getOpponent())) {
             System.out.println("You Win. GAME OVER");
+            try {
+                writer1.close();
+                writer2.close();
+                writer3.close();
+                writer4.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             endGameState = 1;
         }
     }
@@ -122,7 +158,7 @@ public class Controller {
         System.out.println("Stan gry: " + board.evalGameState());
     }
 
-    private class ScheduleTask extends TimerTask {
+    public class ScheduleTask extends TimerTask {
 
         @Override
         public void run() {

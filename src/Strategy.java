@@ -1,3 +1,5 @@
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -22,7 +24,7 @@ public class Strategy {
         System.out.println("AI moves " + root.nOfPMoves(false));
     }
 
-    public void minMax(int depth) {
+    public void minMax(int depth,Writer writer) {
         double val = alphaBeta(root,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         for (Node n: root.possibleMoves){
             if(n.evaluation==val) {
@@ -30,7 +32,16 @@ public class Strategy {
                 break;
             }
         }
+
+        try {
+            writer.write(Integer.toString(sizeNodes));
+            writer.write("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
+        sizeNodes = 1;
     }
 
     private double alphaBeta(Node node, int depth, double alpha, double beta) {
@@ -62,6 +73,61 @@ public class Strategy {
                 beta = Math.min(val,beta);
                 if(beta <= alpha)
                     break;
+            }
+            node.evaluation = beta;
+            return beta;
+        }
+    }
+
+    public void minMax1(int depth,Writer writer) {
+        double val = alphaBeta1(root,depth,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        for (Node n: root.possibleMoves){
+            if(n.evaluation==val) {
+                predictedTurn = n.lastMove;
+                break;
+            }
+        }
+
+        try {
+            writer.write(Integer.toString(sizeNodes));
+            writer.write("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Liczba rozpatrzonych nodów: " + sizeNodes);
+        sizeNodes = 1;
+    }
+
+    private double alphaBeta1(Node node, int depth, double alpha, double beta) {
+        if(depth == 0 || node.isGameOver()) {
+            node.evaluation = node.eval();
+            return node.evaluation;
+        }
+
+        ArrayList<Movement> checkIt = possibleMoves(node);
+        if(node.playerTurn) {
+            for(Movement move: checkIt) {
+                Node n = node.genSon(move);
+                node.possibleMoves.add(n);
+                ++sizeNodes;
+                double val = alphaBeta(n,depth-1,alpha,beta);
+                alpha = Math.max(val,alpha);
+                //if(beta <= alpha)
+                //break;
+            }
+            node.evaluation = alpha;
+            return alpha;
+        }
+        else {
+            for(Movement move: checkIt) {
+                Node n = node.genSon(move);
+                node.possibleMoves.add(n);
+                ++sizeNodes;
+                double val = alphaBeta(n,depth-1,alpha,beta);
+                beta = Math.min(val,beta);
+                //if(beta <= alpha)
+                //break;
             }
             node.evaluation = beta;
             return beta;

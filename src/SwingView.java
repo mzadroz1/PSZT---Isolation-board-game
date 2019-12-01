@@ -8,8 +8,8 @@ import javax.swing.*;
 public class SwingView extends JPanel implements View {
     private static final long serialVersionUID = -7729510720848698723L;
 
-    private Board board;
-    private Controller controller;
+    Board board;
+    Controller controller;
 
     public SwingView() {
         //setSize(720, 730);

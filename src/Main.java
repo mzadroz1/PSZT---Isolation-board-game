@@ -7,15 +7,15 @@ public class Main {
     static boolean isPlayerTurn;
     static int depth;
 
-    private static Board createModel(boolean isPlayerTurn) {
+    static Board createModel(boolean isPlayerTurn) {
         return new Board(isPlayerTurn);
     }
 
-    private static Controller createController(Board b) {
+    static Controller createController(Board b) {
         return new Controller(b);
     }
 
-    private static SwingView createModelViewController(boolean isPlayerTurn) {
+    static SwingView createModelViewController(boolean isPlayerTurn) {
         Board b = createModel(isPlayerTurn);
         Controller c = createController(b);
         SwingView v = new SwingView();
@@ -25,7 +25,7 @@ public class Main {
         return v;
     }
 
-    private static void createAndShowGUI() {
+    static void createAndShowGUI() {
         JFrame frame = new JFrame("Isolation Game") {
             @Override
             public Dimension getPreferredSize() {
